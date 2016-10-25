@@ -62,7 +62,7 @@ elseif strcmp(options.lyapunov_lmi,'full') == 1
     % Lyapunov LMI
     C = C + [A'*P+P*A <= -options.eps_constraints*eye(d,d)];
     % Positive definiteness of P
-    C = C + [0.0001*eye(d,d)<=P];
+    C = C + [options.eps_constraints*eye(d,d)<=P];
 else
     warning('Invalid option for the lyapunov lmi constraint.')
     return;
