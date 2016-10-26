@@ -5,11 +5,7 @@ $ cd your_stable_lds_folder
 ```
 then
 ```
-$ git submodule init
-```
-and
-```
-$ git submodule update
+$ git submodule update --init --recursive
 ```
 To run the demo, in the MATLAB command window run
 ```
