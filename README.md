@@ -11,7 +11,7 @@ and
 ```
 $ git clone https://github.com/yalmip/YALMIP
 ```
-You don't have to run any install scripts. To test if it works, in MATLAB run 
+You don't have to run any install scripts. To run the demo, in the MATLAB command window run 
 ```
 >> demo
 ```
