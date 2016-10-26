@@ -52,7 +52,7 @@ if nargin > 2
     if (size(varargin{1},1) ~= d)
         error(['The specified attractor should have size ' d 'x1']);
     else
-        C = C + [A*attractor-b == zeros(d,1)];
+        C = C + [A*varargin{1}-b == zeros(d,1)];
     end
 end
 
