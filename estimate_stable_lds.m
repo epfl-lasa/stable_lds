@@ -1,4 +1,4 @@
-function [A_out, b_out]=estimate_stable_lds(data, options)
+function [A_out, b_out]=estimate_stable_lds(data, options, varargin)
 % ESTIMATE_STABLE_LDS fits a stable linear dynamical system x_dot = A*x + b
 %   to data
 %
@@ -19,6 +19,7 @@ function [A_out, b_out]=estimate_stable_lds(data, options)
 %            options.bias (true|false) -- specifies if the LDS is 
 %                                         x_dot = A*x + b (true) or just 
 %                                         x_dot = A*x (false)
+%   -varargin{1} specifies a priori the attractor of the DS
 %
 %   OUTPUT PARAMETERS:
 %   - A_out  estimated system matrix
@@ -28,7 +29,6 @@ function [A_out, b_out]=estimate_stable_lds(data, options)
 %   # Authors: Sina Mirrazavi and Jose Medina
 %   # EPFL, LASA laboratory
 %   # Email: jrmout@gmail.com
-
 
 d=size(data,1)/2;
 options_solver=sdpsettings('solver',options.solver);
@@ -47,6 +47,14 @@ end
 C=[error == (A*data(1:d,:) + repmat(b,1,size(data,2)))-data(d+1:2*d,:)];
 % Lyapunov LMI setting P=I
 C = C + [A'+A <= -options.eps_constraints*eye(d,d)] ;
+% Set the attractor at the specified input if set a priori
+if nargin > 2
+    if (size(varargin{1},1) ~= d)
+        error(['The specified attractor should have size ' d 'x1']);
+    else
+        C = C + [A*attractor-b == zeros(d,1)];
+    end
+end
 
 % Solve the optimization
 sol = optimize(C,objective_function,options_solver);
