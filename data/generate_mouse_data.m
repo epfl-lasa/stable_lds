@@ -8,10 +8,11 @@ function data = generate_mouse_data(limits)
 %   # EPFL, LASA laboratory
 %   # Email: jrmout@gmail.com
 
-%% Load data
+%% Drawing plot
 fig = figure();
 view([0 90]);
 hold on;
+disp('Draw some trajectories with the mouse on the figure.')
 
 axis(limits);
 delete_trace = 0;
@@ -34,7 +35,7 @@ datacursormode off
 
 set(fig,'WindowButtonDownFcn',@(h,e)button_clicked(h,e));
 set(fig,'WindowButtonUpFcn',[]);
-set(fig,'WindowButtonMotionFcn');
+set(fig,'WindowButtonMotionFcn',[]);
 set(fig,'Pointer','circle');
 hp = gobjects(0);
 stop_btn = uicontrol('style','pushbutton','String', 'stop recording','Callback',@stop_recording, ...
@@ -49,7 +50,7 @@ while( (get(stop_btn, 'UserData') == 1));
         demonstration_index_monitor = demonstration_index;
         set(fig,'WindowButtonDownFcn',@(h,e)button_clicked(h,e));
         set(fig,'WindowButtonUpFcn',[]);
-        set(fig,'WindowButtonMotionFcn');
+        set(fig,'WindowButtonMotionFcn',[]);
         set(fig,'Pointer','circle');
     end
 end
