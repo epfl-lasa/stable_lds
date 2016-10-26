@@ -1,4 +1,4 @@
-function data = generate_mouse_data()
+function data = generate_mouse_data(limits)
 % GENERATE_MOUSE_DATA(NTH_ORDER, N_DOWNSAMPLE) request the user to give
 % demonstrations of a trajectories in a 2D workspace using the mouse cursor
 % The data is stored in an [x ; dx/dt] structure  
@@ -13,7 +13,7 @@ fig = figure();
 view([0 90]);
 hold on;
 
-axis([0 100 0 100]);
+axis(limits);
 delete_trace = 0;
 
 % to store the data
