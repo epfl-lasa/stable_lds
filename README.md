@@ -13,4 +13,5 @@ To run the demo, in the MATLAB command window run
 ```
 A figure will pop up where you can draw as many trajectories as you want. Once you are done click 'stop recording' and you will see the streamlines of the resulting dynamical system
 ![Exemplary linear DS](plot/lds.jpg)
+
 The code can estimate the attractor and dynamics of the provided trajectories or constrain the attractor to a state provided a priori.
