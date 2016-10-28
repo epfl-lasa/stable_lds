@@ -11,3 +11,5 @@ To run the demo, in the MATLAB command window run
 ```
 >> demo
 ```
+A figure will pop up where you can draw as many trajectories as you want. Once you are done click 'stop recording' and you will see the streamlines of the resulting dynamical system
+![Exemplary linear DS](plot/lds.jpg)
