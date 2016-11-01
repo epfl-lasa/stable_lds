@@ -31,7 +31,9 @@ function [A_out, b_out]=estimate_stable_lds(data, options, varargin)
 %   # Email: jrmout@gmail.com
 
 d=size(data,1)/2;
-options_solver=sdpsettings('solver',options.solver);
+options_solver=sdpsettings('solver',options.solver, ...
+                           'verbose', options.verbose, ...
+                           'warning', options.warning);
 
 % Solver variables
 A = sdpvar(d,d,'full');
@@ -49,10 +51,13 @@ C=[error == (A*data(1:d,:) + repmat(b,1,size(data,2)))-data(d+1:2*d,:)];
 C = C + [A'+A <= -options.eps_constraints*eye(d,d)] ;
 % Set the attractor at the specified input if set a priori
 if nargin > 2
-    if (size(varargin{1},1) ~= d)
-        error(['The specified attractor should have size ' d 'x1']);
-    else
-        C = C + [A*varargin{1}-b == zeros(d,1)];
+    % Do not estimate the bias, set it to the one specified a priori
+    if options.bias == false
+        if (size(varargin{1},1) ~= d)
+            error(['The specified attractor should have size ' d 'x1']);
+        else
+            C = C + [A*varargin{1}-b == zeros(d,1)];
+        end
     end
 end
 
