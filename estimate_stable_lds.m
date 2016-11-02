@@ -43,7 +43,7 @@ A = sdpvar(d,d,'full');
 b = sdpvar(d,1);
 error = sdpvar(d,size(data,2));
 objective_function=sum((sum(error.^2)));
-if numel(options.weights) > 0
+if isfield(options, 'weights')
     objective_function=sum(options.weights.*(sum(error.^2)));
 end
 
