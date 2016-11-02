@@ -19,7 +19,8 @@ function [A_out, b_out]=estimate_stable_lds(data, options, varargin)
 %            options.bias (true|false) -- specifies if the LDS is 
 %                                         x_dot = A*x + b (true) or just 
 %                                         x_dot = A*x (false)
-%   -varargin{1} specifies a priori the attractor of the DS
+%            options.attractor         -- specifies a priori the atractor
+%            options.weights           -- weighting factor for each sample
 %
 %   OUTPUT PARAMETERS:
 %   - A_out  estimated system matrix
@@ -35,14 +36,15 @@ options_solver=sdpsettings('solver',options.solver, ...
                            'verbose', options.verbose, ...
                            'warning', options.warning);
 
+
+
 % Solver variables
 A = sdpvar(d,d,'full');
 b = sdpvar(d,1);
 error = sdpvar(d,size(data,2));
 objective_function=sum((sum(error.^2)));
-
-if options.bias == false
-    b = zeros(d,1);
+if numel(options.weights) > 0
+    objective_function=sum(options.weights.*(sum(error.^2)));
 end
 
 % Define constraints
@@ -50,13 +52,13 @@ C=[error == (A*data(1:d,:) + repmat(b,1,size(data,2)))-data(d+1:2*d,:)];
 % Lyapunov LMI setting P=I
 C = C + [A'+A <= -options.eps_constraints*eye(d,d)] ;
 % Set the attractor at the specified input if set a priori
-if nargin > 2
+if nargin > 3
     % Do not estimate the bias, set it to the one specified a priori
     if options.bias == false
-        if (size(varargin{1},1) ~= d)
+        if (size(options.attractor,1) ~= d)
             error(['The specified attractor should have size ' d 'x1']);
         else
-            C = C + [A*varargin{1}-b == zeros(d,1)];
+            C = C + [A*options.attractor-b == zeros(d,1)];
         end
     end
 end
