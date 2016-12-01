@@ -39,9 +39,9 @@ C = [];
 for i = 1:n_comp
     objective_function = objective_function ...
                                 + sum(weights(i,:).*(sum(error(:,:,i).^2)));
-    C= C + [error(:,:,i) == -A_inv(:,:,i)*data(d+1:2*d,:) ...
+    C = C + [error(:,:,i) == -A_inv(:,:,i)*data(d+1:2*d,:) ...
                                 + repmat(x_star,1,size(data,2))-data(1:d,:) ];
-    C = C + [A_inv(:,:,i) >= options.eps_pos_def*eye(d,d)];
+    C = C + [A_inv(:,:,i) + A_inv(:,:,i)' >= options.eps_pos_def*eye(d,d)];
 end
 
 % Do not estimate the attractor, set it to the one specified a priori
@@ -61,5 +61,6 @@ end
 
 for i = 1:n_comp
     A_inv_out{i} = value(A_inv(:,:,i));
+    eig(A_inv_out{i})
 end
 x_attractor = value(x_star);
