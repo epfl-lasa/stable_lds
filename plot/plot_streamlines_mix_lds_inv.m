@@ -35,6 +35,8 @@ for i=1:length(x)
     x_dot(:,i) = -sum_A_inv(:,:,i)\(x(:,i) - lambda.x_attractor); 
 end
 streamslice(x_tmp,y_tmp,reshape(x_dot(1,:),ny,nx),reshape(x_dot(2,:),ny,nx),1,'method','cubic')
+hold on;
+plot(lambda.x_attractor(1), lambda.x_attractor(2), 'o', 'LineWidth', 6,'MarkerSize', 12);
 axis([ax.XLim ax.YLim]);
 box on;
 

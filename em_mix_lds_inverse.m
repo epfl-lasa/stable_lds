@@ -21,14 +21,13 @@ function [lambda]=em_mix_lds_inverse(data, n_comp, n_iter, options)
 %   # Email: jrmout@gmail.com
 
 d = size(data,1)/2;
-%n_points = size(data,2);
 x_obs = data(1:d,:)';
 x_dot_obs = data(d+1:end,:)';
 
-min_eig = 1e-6;
+min_eig = 1e-2;
 
 % Init model parameters with kmeans
-lambda= init_kmeans_mix_lds(data, n_comp, options);
+lambda= init_kmeans_mix_lds(data, n_comp, min_eig, options);
 
 weights = zeros(n_comp, size(data,2));
 
@@ -43,7 +42,7 @@ for it = 1:n_iter
                                              lambda.cov_xloc{c}) ...
                        .* lambda.pi(c) )';
     end
-    weights = weights ./ repmat(sum(weights,1), n_comp, 1);
+    weights = weights ./ repmat(sum(weights,1) + 1e-10, n_comp, 1);
 
     %% M step
     % Max A_invs and x_attractor
@@ -74,12 +73,4 @@ for it = 1:n_iter
     end
     lambda.pi = (1/n_comp) * ones(n_comp,1);
 end
-end
-
-% Crop covariance eigenvalues to a minimum value
-function cov_cropped = crop_min_eig(cov, min_eig)
-    [V,D] = eig(cov);
-    d_eig = diag(D);
-    d_eig(d_eig<min_eig) = min_eig;
-    cov_cropped = V*diag(d_eig)*V';
 end
