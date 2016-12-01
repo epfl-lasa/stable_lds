@@ -1,4 +1,5 @@
-function [ lambda ] = init_kmeans_mix_lds( data, n_comp, min_eig, options)
+function [ lambda ] = init_kmeans_mix_lds( data, n_comp, min_eig_reg, ...
+                                                         min_eig_loc, options)
 %INIT_KMEANS_MIX_LDS Initializes the model with kmeans
 
 d=size(data,1)/2;
@@ -29,13 +30,12 @@ for c=1:n_comp
     model_error = (-lambda.A_inv{c}*x_dot_obs_c' ...
       + repmat(lambda.x_attractor, [1 size(x_obs_c,1)]) - x_obs_c');
     lambda.cov_reg{c} = ...
-        crop_min_eig(1/size(x_obs_c,2)*(model_error*model_error'),min_eig);
-  
-    % Compute the variance of the inputs
-    % lambda.cov_reg{c} = diag(diag(cov(x_obs_c)));
+        crop_min_eig(1/size(x_obs_c,2)*(model_error*model_error'),min_eig_reg);
+    % Only diagonal noise
+    lambda.cov_reg{c} = diag(diag(lambda.cov_reg{c}));
     
     lambda.mu_xloc{c} = mean(x_obs_c)';
-    lambda.cov_xloc{c} = crop_min_eig(cov(x_obs_c),min_eig);
+    lambda.cov_xloc{c} = crop_min_eig(cov(x_obs_c),min_eig_loc);
 end
 lambda.pi = (1/n_comp) * ones(n_comp,1);
 
