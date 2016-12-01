@@ -13,7 +13,7 @@ options.warning = false;
 options.attractor = [0 0]';
 options.weights = ones(1,size(data,2)); % normalized weights for each sample
 
-[A_inv, x_attractor] = estimate_stable_lds_inverse(data,options);
+[A, b] = estimate_stable_lds(data,options);
 
 % Plot result
-plot_streamlines_inverse(A_inv, x_attractor, limits);
+plot_streamlines(A, b, limits);
