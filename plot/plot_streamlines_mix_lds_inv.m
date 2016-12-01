@@ -40,5 +40,12 @@ plot(lambda.x_attractor(1), lambda.x_attractor(2), 'o', 'LineWidth', 6,'MarkerSi
 axis([ax.XLim ax.YLim]);
 box on;
 
+for c=1:n_comp
+    p_handle = plot_ellipsoid(lambda.mu_xloc{c}, ...
+                                        lambda.cov_xloc{c});
+    set(p_handle, 'EdgeColor',[1 0.5 0], 'EdgeAlpha', 0.3, ...
+                  'FaceColor',[1 0.5 0], 'FaceAlpha', 0.05);
+end
+
 end
 
