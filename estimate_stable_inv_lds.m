@@ -1,4 +1,4 @@
-function [A_inv, x_attractor]=estimate_stable_lds_inverse(data, options, varargin)
+function [A_inv, x_attractor]=estimate_stable_inv_lds(data, options, varargin)
 % ESTIMATE_STABLE_LDS_INVERSE fits a stable linear dynamical system
 % inverting the estimation problem. Instead of considering the standard
 % model
