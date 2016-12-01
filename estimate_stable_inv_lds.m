@@ -46,8 +46,8 @@ options_solver=sdpsettings('solver',options.solver, ...
                            'warning', options.warning);
 
 % Solver variables
-A = sdpvar(d,d,'full');
-b = sdpvar(d,1);
+A_inv = sdpvar(d,d,'full');
+x_star = sdpvar(d,1);
 error = sdpvar(d,size(data,2));
 objective_function=sum((sum(error.^2)));
 if isfield(options, 'weights')
@@ -55,16 +55,16 @@ if isfield(options, 'weights')
 end
 
 % Define constraints
-C=[error == -A*data(d+1:2*d,:) + repmat(b,1,size(data,2))-data(1:d,:) ];
+C=[error == -A_inv*data(d+1:2*d,:) + repmat(x_star,1,size(data,2))-data(1:d,:) ];
 % Positive definite
-C = C + [A >= options.eps_constraints*eye(d,d)] ;
+C = C + [A_inv + A_inv' >= options.eps_constraints*eye(d,d)] ;
 
 % Do not estimate the bias, set it to the one specified a priori
 if options.bias == false
     if (size(options.attractor,1) ~= d)
         error(['The specified attractor should have size ' d 'x1']);
     else
-        C = C + [b == options.attractor];
+        C = C + [x_star == options.attractor];
     end
 end
 
@@ -73,5 +73,5 @@ sol = optimize(C,objective_function,options_solver);
 if sol.problem~=0
     warning(sol.info);
 end
-A_inv = value(A);
-x_attractor = value(b);
+A_inv = value(A_inv);
+x_attractor = value(x_star);
