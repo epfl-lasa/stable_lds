@@ -1,4 +1,4 @@
-function [A_out, b_out]=estimate_stable_lds(data, options, varargin)
+function [A_out, b_out]=estimate_stable_lds(data, options)
 % ESTIMATE_STABLE_LDS fits a stable linear dynamical system x_dot = A*x + b
 %   to data
 %
@@ -16,54 +16,63 @@ function [A_out, b_out]=estimate_stable_lds(data, options, varargin)
 %   -options options.solver -- specifies the YALMIP solver.
 %            options.eps_constraints -- specifies the eps for the
 %                                       constraints
-%            options.bias (true|false) -- specifies if the LDS is 
-%                                         x_dot = A*x + b (true) or just 
-%                                         x_dot = A*x (false)
-%            options.attractor         -- specifies a priori the atractor
-%            options.weights           -- weighting factor for each sample
+%            options.attractor       -- specifies a priori the atractor
+%            options.weights         -- weighting factor for each sample
 %
 %   OUTPUT PARAMETERS:
 %   - A_out  estimated system matrix
 %   - b_out  estimated bias
 %
 %
-%   # Authors: Sina Mirrazavi and Jose Medina
+%   # Authors: Jose Medina and Sina Mirrazavi
 %   # EPFL, LASA laboratory
 %   # Email: jrmout@gmail.com
 
-d=size(data,1)/2;
+% Default values
+if ~isfield(options, 'solver')
+    options.solver = 'sedumi';
+end 
+if ~isfield(options, 'verbose')
+    options.verbose = 0;
+end 
+if ~isfield(options, 'warning')
+    options.warning = 0;
+end 
+if ~isfield(options, 'eps_constraints')
+    options.eps_constraints = 1e-3;
+end 
+
 options_solver=sdpsettings('solver',options.solver, ...
                            'verbose', options.verbose, ...
                            'warning', options.warning);
 
-
-
 % Solver variables
+d=size(data,1)/2;
 A = sdpvar(d,d,'full');
 b = sdpvar(d,1);
 error = sdpvar(d,size(data,2));
+
+% Objective
 objective_function=sum((sum(error.^2)));
 if isfield(options, 'weights')
     objective_function=sum(options.weights.*(sum(error.^2)));
 end
 
-% Define constraints
+% Constraints
 C=[error == (A*data(1:d,:) + repmat(b,1,size(data,2)))-data(d+1:2*d,:)];
-% Lyapunov LMI setting P=I
+% Lyapunov LMI setting P=I -> Pos def nonsymmetric matrix
 C = C + [A'+A <= -options.eps_constraints*eye(d,d)] ;
-% Set the attractor at the specified input if set a priori
-if nargin > 3
-    % Do not estimate the bias, set it to the one specified a priori
-    if options.bias == false
-        if (size(options.attractor,1) ~= d)
-            error(['The specified attractor should have size ' d 'x1']);
-        else
-            C = C + [A*options.attractor-b == zeros(d,1)];
-        end
+
+% Do not estimate the bias, set it to the one specified a priori
+if isfield(options, 'attractor')
+    if (size(options.attractor,1) ~= d)
+        error(['The specified attractor should have size ' d 'x1']);
+    else
+        C = C + [A*options.attractor-b == zeros(d,1)];
     end
 end
 
-% Solve the optimization
+% Solve
 sol = optimize(C,objective_function,options_solver);
 if sol.problem~=0
     warning(sol.info);
