@@ -9,6 +9,7 @@ function [lambda]=em_mix_inv_lds(data, n_comp, n_iter, options)
 %   -data    data = [x; x_dot] and size(data) = [d*2,n_data_points], 
 %            where d is the dimenstion of the input/output.
 %   -n_comp  number of components of the mixture.
+%   -n_iter  number of iterations of the EM algorithm
 %   -options options.solver -- specifies the YALMIP solver
 %            options.eps_constraints -- specifies the eps for the
 %                                       pos def constraint satisfaction
@@ -43,7 +44,7 @@ for it = 1:n_iter
                                              lambda.cov_xloc{c}) ...
                        .* lambda.pi(c) )';
     end
-    weights = weights ./ repmat(sum(weights,1) + 1e-10, n_comp, 1);
+    weights = weights ./ repmat(sum(weights,1) + realmin, n_comp, 1);
 
     %% M step
     % Max A_invs and x_attractor
