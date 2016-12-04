@@ -1,14 +1,21 @@
-function [A_out, b_out]=estimate_stable_lds(data, options)
+function [A_out, b_out]=estimate_stable_lds(data, varargin)
 % ESTIMATE_STABLE_LDS fits a stable linear dynamical system x_dot = A*x + b
 %   to data
 %
 %   ESTIMATE_STABLE_LDS solves the optimization problem
 %    min (error^2)  subject to:  error == A*x + b - x_dot
 %     A                          A'+A <= -options.eps_constraints*I
-%                                options.eps_constraints*I <= P
 %   
 %   [A_OUT, b_out] = ESTIMATE_STABLE_LDS(DATA, OPTIONS) returns the system
 %   matrix and the bias of a linear dynamical system
+%
+%   USAGE:
+%   [A_OUT, B_OUT] = ESTIMATE_STABLE_LDS_INVERSE(DATA) fits a linear
+%   dynamical system to the data and returns the system matrix
+%   and the estimated bias.
+%
+%   [A_OUT, B_OUT] = ESTIMATE_STABLE_LDS_INVERSE(DATA, OPTIONS) fits a 
+%   linear dynamical system to the data with the specified options 
 %   
 %   INPUT PARAMETERS:
 %   -data    data = [x; x_dot] and size(data) = [d*2,n_data_points], 
@@ -27,6 +34,13 @@ function [A_out, b_out]=estimate_stable_lds(data, options)
 %   # Authors: Jose Medina and Sina Mirrazavi
 %   # EPFL, LASA laboratory
 %   # Email: jrmout@gmail.com
+
+% Check for options
+if nargin > 1
+    options = varargin{1};
+else
+    options = [];
+end
 
 % Default values
 if ~isfield(options, 'solver')
@@ -60,7 +74,7 @@ end
 
 % Constraints
 C=[error == (A*data(1:d,:) + repmat(b,1,size(data,2)))-data(d+1:2*d,:)];
-% Lyapunov LMI setting P=I -> Pos def nonsymmetric matrix
+% Lyapunov LMI setting P=I -> Pos def (nonsymmetric) matrix
 C = C + [A'+A <= -options.eps_constraints*eye(d,d)] ;
 
 % Do not estimate the bias, set it to the one specified a priori
