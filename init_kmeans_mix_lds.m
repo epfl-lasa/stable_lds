@@ -1,6 +1,6 @@
-function [ lambda ] = init_kmeans_mix_lds( data, n_comp, min_eig_reg, ...
-                                                         min_eig_loc, options)
-%INIT_KMEANS_MIX_LDS Initializes the model with kmeans
+function [ lambda ] = init_kmeans_mix_lds(data, n_comp, options)
+%INIT_KMEANS_MIX_LDS Initializes the model with kmeans and solves the
+%resulting clusters with estimate_stable_mix_inv_lds. 
 
 d=size(data,1)/2;
 x_obs = data(1:d,:)';
@@ -20,7 +20,7 @@ for c=1:n_comp
 end
 
 [lambda.x_attractor, lambda.A_inv] = estimate_stable_mix_inv_lds( ...
-                                 [x_obs x_dot_obs]', weights, n_comp, options);
+                                 [x_obs x_dot_obs]', weights, options);
 
 for c=1:n_comp
     x_obs_c = x_obs(idx == c,:);
@@ -30,12 +30,13 @@ for c=1:n_comp
     model_error = (-lambda.A_inv{c}*x_dot_obs_c' ...
       + repmat(lambda.x_attractor, [1 size(x_obs_c,1)]) - x_obs_c');
     lambda.cov_reg{c} = ...
-        crop_min_eig(1/size(x_obs_c,2)*(model_error*model_error'),min_eig_reg);
+        crop_min_eig(1/size(x_obs_c,2)*(model_error*model_error'), ...
+                                                        options.min_eig_reg);
     % Only diagonal noise
     lambda.cov_reg{c} = diag(diag(lambda.cov_reg{c}));
     
     lambda.mu_xloc{c} = mean(x_obs_c)';
-    lambda.cov_xloc{c} = crop_min_eig(cov(x_obs_c),min_eig_loc);
+    lambda.cov_xloc{c} = crop_min_eig(cov(x_obs_c), options.min_eig_loc);
 end
 lambda.pi = (1/n_comp) * ones(n_comp,1);
 

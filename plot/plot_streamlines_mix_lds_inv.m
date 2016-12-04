@@ -20,7 +20,10 @@ weights = zeros(n_comp, size(x,2));
 for c=1:n_comp
     weights(c,:) = ( mvnpdf(x', lambda.mu_xloc{c}', ...
                                          lambda.cov_xloc{c}) ...
-                   .* lambda.pi(c) )';
+                   .* lambda.pi(c) )' + realmin; % TODO: In case of numerical 
+                                                 % problems, instead of realmin
+                                                 % choose closest component 
+                                                 % based on Mahalanobis dist
 end
 weights = weights ./ repmat(sum(weights,1)+1e-30, n_comp, 1); 
 
@@ -30,9 +33,11 @@ for c=1:n_comp
                                 [1 1 length(weights(c,:))]), 2,2,1)...
                                 .*repmat(lambda.A_inv{c},1,1,length(x));
 end
-
 for i=1:length(x)
-    x_dot(:,i) = -sum_A_inv(:,:,i)\(x(:,i) - lambda.x_attractor); 
+    x_dot(:,i) = -sum_A_inv(:,:,i)\(x(:,i) - lambda.x_attractor);
+    if (sum(eig(sum_A_inv(:,:,i) + sum_A_inv(:,:,i)') <= 0) > 0)
+        disp('Not stable!')
+    end
 end
 streamslice(x_tmp,y_tmp,reshape(x_dot(1,:),ny,nx),reshape(x_dot(2,:),ny,nx),1,'method','cubic')
 hold on;
