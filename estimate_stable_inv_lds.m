@@ -11,11 +11,11 @@ function [A_inv, x_attractor]=estimate_stable_inv_lds(data, varargin)
 %       A                       A_inv + A_inv' >= options.eps_constraints*I
 %
 %   USAGE:
-%   [A_INV, X_ATTRACTOR] = ESTIMATE_STABLE_LDS_INVERSE(DATA) fits a linear
+%   [A_inv, x_attractor] = ESTIMATE_STABLE_INV_LDS(data) fits a linear
 %   dynamical system to the data and returns the inverse of the system matrix
 %   and the estimated attractor.
 %
-%   [A_INV, X_ATTRACTOR] = ESTIMATE_STABLE_LDS_INVERSE(DATA, OPTIONS) fits a 
+%   [A_inv, x_attractor] = ESTIMATE_STABLE_INV_LDS(data, options) fits a 
 %   linear dynamical system to the data with the specified options 
 %   
 %   INPUT PARAMETERS:

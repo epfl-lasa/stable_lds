@@ -6,15 +6,15 @@ function [A_out, b_out]=estimate_stable_lds(data, varargin)
 %    min (error^2)  subject to:  error == A*x + b - x_dot
 %     A                          A'+A <= -options.eps_constraints*I
 %   
-%   [A_OUT, b_out] = ESTIMATE_STABLE_LDS(DATA, OPTIONS) returns the system
+%   [A_out, b_out] = ESTIMATE_STABLE_LDS(data, options) returns the system
 %   matrix and the bias of a linear dynamical system
 %
 %   USAGE:
-%   [A_OUT, B_OUT] = ESTIMATE_STABLE_LDS_INVERSE(DATA) fits a linear
+%   [A_out, b_out] = ESTIMATE_STABLE_LDS(data) fits a linear
 %   dynamical system to the data and returns the system matrix
 %   and the estimated bias.
 %
-%   [A_OUT, B_OUT] = ESTIMATE_STABLE_LDS_INVERSE(DATA, OPTIONS) fits a 
+%   [A_out, b_out] = ESTIMATE_STABLE_LDS(data, options) fits a 
 %   linear dynamical system to the data with the specified options 
 %   
 %   INPUT PARAMETERS:
