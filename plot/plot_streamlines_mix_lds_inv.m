@@ -17,6 +17,8 @@ ax_y=linspace(ax.YLim(1),ax.YLim(2),ny);
 x=[x_tmp(:) y_tmp(:)]';
 
 weights = zeros(n_comp, size(x,2));
+
+% Plot dynamics
 for c=1:n_comp
     weights(c,:) = ( mvnpdf(x', lambda.mu_xloc{c}', ...
                                          lambda.cov_xloc{c}) ...
@@ -39,11 +41,15 @@ for i=1:length(x)
         disp('Not stable!')
     end
 end
-streamslice(x_tmp,y_tmp,reshape(x_dot(1,:),ny,nx),reshape(x_dot(2,:),ny,nx),1,'method','cubic')
+x_dyn_h = streamslice(x_tmp,y_tmp,reshape(x_dot(1,:),ny,nx), ...
+                                reshape(x_dot(2,:),ny,nx),1,'method','cubic');
 hold on;
-plot(lambda.x_attractor(1), lambda.x_attractor(2), 'o', 'LineWidth', 6,'MarkerSize', 12);
+% Plot attractor
+x_attractor_h = plot(lambda.x_attractor(1), lambda.x_attractor(2), ...
+                                        'o', 'LineWidth', 6,'MarkerSize', 12);
 axis([ax.XLim ax.YLim]);
 box on;
+legend([x_dyn_h(1) x_attractor_h], 'xdot', 'attractor');
 
 for c=1:n_comp
     p_handle = plot_ellipsoid(lambda.mu_xloc{c}, ...
@@ -52,5 +58,7 @@ for c=1:n_comp
                   'FaceColor',[1 0.5 0], 'FaceAlpha', 0.05);
 end
 
+legend([x_dyn_h(1) x_attractor_h p_handle], 'xdot', 'attractor', ...
+                                                            'Local component');
 end
 
