@@ -18,4 +18,4 @@ options.weights = ones(1,size(data,2)); % normalized weights for each sample
 [A, b] = estimate_stable_lds(data,options);
 
 % Plot result
-plot_streamlines(A, b, limits);
+plot_streamlines_lds(A, b, limits);
