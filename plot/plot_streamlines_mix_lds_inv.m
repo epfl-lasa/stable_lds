@@ -25,7 +25,7 @@ for c=1:n_comp
                                                  % choose closest component 
                                                  % based on Mahalanobis dist
 end
-weights = weights ./ repmat(sum(weights,1)+1e-30, n_comp, 1); 
+weights = weights ./ repmat(sum(weights,1)+n_comp*realmin, n_comp, 1); 
 
 sum_A_inv = zeros(2,2,length(x));
 for c=1:n_comp
