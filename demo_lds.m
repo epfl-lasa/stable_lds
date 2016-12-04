@@ -13,7 +13,7 @@ options.eps_constraints = 0.01;         % Pos def eps margin
 options.verbose = 0;                    % Verbose (0-5)
 options.warning = false;                % Display warning information
 %options.attractor = [0 0]';             % Set the attractor a priori
-options.weights = ones(1,size(data,2)); % normalized weights for each sample
+options.weights = ones(1,size(data,2)); % Weights for each sample
 
 [A, b] = estimate_stable_lds(data,options);
 
