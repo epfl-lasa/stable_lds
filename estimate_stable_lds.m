@@ -25,6 +25,8 @@ function [A_out, b_out]=estimate_stable_lds(data, varargin)
 %                                       constraints
 %            options.attractor       -- specifies a priori the atractor
 %            options.weights         -- weighting factor for each sample
+%            options.verbose         -- verbose YALMIP option [0-5]
+%            options.warning         -- warning YALMIP option (true/false)
 %
 %   OUTPUT PARAMETERS:
 %   - A_out  estimated system matrix

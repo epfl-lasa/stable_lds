@@ -9,7 +9,7 @@ data = generate_mouse_data(limits);
 % Optimization options
 clear options;
 options.solver = 'sedumi';
-options.eps_constraints = 0.001;        % Pos def eps margin
+options.eps_pos_def = 0.001;            % Pos def eps margin
 options.verbose = 0;                    % Verbose (0-5)
 options.warning = false;                % Display warning information
 %options.attractor = [0 0]';             % Ignored if options.bias=true

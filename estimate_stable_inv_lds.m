@@ -24,10 +24,12 @@ function [A_inv, x_attractor]=estimate_stable_inv_lds(data, varargin)
 %
 %   Optional input parameters
 %   -options options.solver -- specifies the YALMIP solver.
-%            options.eps_constraints -- specifies the eps for the
+%            options.eps_pos_def    -- specifies the eps for the
 %                                       constraints
 %            options.attractor       -- specifies a priori the atractor
 %            options.weights         -- weighting factor for each sample
+%            options.verbose         -- verbose YALMIP option [0-5]
+%            options.warning         -- warning YALMIP option (true/false)
 %
 %   OUTPUT PARAMETERS:
 %   - A_inv  estimated inverse system matrix
@@ -55,7 +57,7 @@ if ~isfield(options, 'warning')
     options.warning = 0;
 end 
 if ~isfield(options, 'eps_constraints')
-    options.eps_constraints = 1e-3;
+    options.eps_pos_def = 1e-3;
 end 
 
 options_solver=sdpsettings('solver',options.solver, ...
@@ -75,7 +77,7 @@ end
 % Constraints
 C=[error == -A_inv*data(d+1:2*d,:) + repmat(x_star,1,size(data,2))-data(1:d,:) ];
 % Lyapunov LMI setting P=I -> Pos def (nonsymmetric) matrix
-C = C + [A_inv + A_inv' >= options.eps_constraints*eye(d,d)] ;
+C = C + [A_inv + A_inv' >= options.eps_pos_def*eye(d,d)] ;
 
 % Do not estimate the bias, set it to the one specified a priori
 if isfield(options, 'attractor')
