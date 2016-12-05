@@ -10,7 +10,7 @@ $ git submodule update --init --recursive
 This repo provides three different methods:
   - An estimator for a <b>stable linear dynamical system</b> (estimate_stable_lds.m)
   - An estimator for a <b>stable linear dynamical system with an inverse procedure</b> (estimate_stable_inv_lds.m)
-  - An estimator for a <b>stable nonlinear dynamical system as a mixture of linear dynamical systems<b> that relies on an inverse procedure (em_mix_inv_lds.m and estimate_mix_inv_lds.m)
+  - An estimator for a <b>stable nonlinear dynamical system as a mixture of linear dynamical systems</b> that relies on an inverse procedure (em_mix_inv_lds.m and estimate_mix_inv_lds.m)
 
 All three methods estimate <i>both the dynamics and the attractor</i> but if you prefer you can specify the attractor a priori. On matlab type
 ```
@@ -28,5 +28,5 @@ for the <b>stable linear dynamical system</b> estimator. A figure will pop up wh
 You will get an equivalent demo and interface for the <b>stable linear dynamical system with an inverse procedure</b>
 ![Exemplary linear DS](plot/inv_lds.png)
 
-and for the <b>stable nonlinear dynamical system as a mixture of linear dynamical systems<b>. 
+and for the <b>stable nonlinear dynamical system as a mixture of linear dynamical systems</b>. 
 ![Exemplary linear DS](plot/mix_inv_lds.png)
