@@ -77,7 +77,7 @@ end
 % Constraints
 C=[error == -A_inv*data(d+1:2*d,:) + repmat(x_star,1,size(data,2))-data(1:d,:) ];
 % Lyapunov LMI setting P=I -> Pos def (nonsymmetric) matrix
-C = C + [A_inv + A_inv' >= options.eps_pos_def*eye(d,d)] ;
+C = C + [A_inv + A_inv' >= options.eps_pos_def*eye(d,d)];
 
 % Do not estimate the bias, set it to the one specified a priori
 if isfield(options, 'attractor')

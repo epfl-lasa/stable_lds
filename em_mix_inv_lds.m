@@ -12,7 +12,7 @@ function [lambda]=em_mix_inv_lds(data, n_comp, varargin)
 %   [lambda] = EM_MIX_INV_LDS(data, n_comp) fits a linear
 %   dynamical system to the data and returns the inverse of the system matrix
 %   and the estimated attractor.
-
+%
 %   INPUT PARAMETERS:
 %   -data    data = [x; x_dot] and size(data) = [d*2,n_data_points], 
 %            where d is the dimenstion of the input/output.
