@@ -84,7 +84,7 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
         options.max_iter =  1000;
     end
     if ~isfield(options, 'c_reg')
-            options.c_reg =  1e-3;
+            options.c_reg =  -1e-3;
     end
     
     A_inv_0 = zeros(d,d,n_comp);
