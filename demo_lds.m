@@ -8,7 +8,7 @@ data = generate_mouse_data(limits);
 
 % Optimization options
 clear options;
-options.solver = 'fminsdp';             % YALMIP solvers, e.g. 'sedumi'|
+options.solver = 'sedumi';             % YALMIP solvers, e.g. 'sedumi'|
                                         % NLP solvers 'fmincon' | 'fminsdp'
 options.eps_pos_def = 1e-3;             % Pos def eps margin
 options.verbose = 0;                    % Verbose (0-5)

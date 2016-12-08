@@ -10,8 +10,8 @@ em_iterations = 5;
 % Optimization options
 clear options;
 options.n_iter = em_iterations;        % Max number of EM iterations
-options.solver = 'fmincon';              % Solver
-options.eps_pos_def = 1e-20;          % Pos def eps margin
+options.solver = 'fminsdp';              % Solver
+options.eps_pos_def = 1e-3;          % Pos def eps margin
 options.verbose = 1;                    % Verbose (0-5)
 options.warning = true;                % Display warning information
 

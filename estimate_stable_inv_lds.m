@@ -19,7 +19,7 @@ function [A_inv, x_attractor]=estimate_stable_inv_lds(data, varargin)
 %   linear dynamical system to the data with the specified options 
 %
 %   This code provides 3 different solvers for this problem
-%   - YALMIP: solver for convex problems
+%   - YALMIP: solvers for convex problems
 %   - fmincon: NLP solver with a nonconvex constraint for the LMI
 %   - fminsdp: NLP solver with a convex constraint for the LMI solved with
 %              the ldl method
@@ -30,8 +30,8 @@ function [A_inv, x_attractor]=estimate_stable_inv_lds(data, varargin)
 %   problems, however the ldl method used ensures that the constraints will
 %   be always satisfied. 
 %   The fmincon NLP solver works fine most of the time but may provide 
-%   sometimes nonstable solutions.
-%   The NLP solutions fminsdp are there only as a first step to combine this
+%   sometimes nonstable solutions (can't find feasible ones).
+%   The NLP solutions are there only as a first step to combine this
 %   convex constrained problem with nonlinear nonconvex settings without
 %   adding any nonconvexity to the problem.
 %   
@@ -90,11 +90,12 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
         options.max_iter =  1000;
     end
     if ~isfield(options, 'c_reg')
-            options.c_reg =  1e-20;
+            options.c_reg =  1e-3;
     end
     
-    A0 = eye(d);
+    A0 = -eye(d);
     b0 = zeros(d,1);
+    p0 = fold_lds(A0,b0);
     
     data_inv = zeros(size(data));
     data_inv(1:d,:) = data(d+1:end,:);
@@ -110,12 +111,11 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
         'MaxIter', options.max_iter, 'DiffMinChange',  1e-10, 'Hessian','off');
      
         constraints_handle = @(p)neg_def_lmi(p, d, options);
-        p0 = fold_lds(A0,b0);
 
         % Solve
         p_opt = fmincon(objective_handle, p0, [], [], [], [], [], [], ...
                                              constraints_handle, opt_options);
-    else
+    else % fminsdp
         opt_options = sdpoptionset( 'Algorithm','interior-point',...
             'GradConstr','on','GradObj','on','Display','iter-detailed',...
             'method','ldl',...
@@ -126,7 +126,6 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
             'DiffMinChange', 1e-20, 'Hessian','off');
         
         constraints_handle = @(p)stable_lds_constraint(p, d, options);
-        p0 = fold_lds(-A0,b0);
         
         % Solve
         p_opt = fminsdp(objective_handle, p0, [], [], [], [], [], [], ...

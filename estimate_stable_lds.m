@@ -18,7 +18,7 @@ function [A_out, b_out]=estimate_stable_lds(data, varargin)
 %   linear dynamical system to the data with the specified options 
 %   
 %   This code provides 3 different solvers for this problem
-%   - YALMIP: solver for convex problems
+%   - YALMIP: solvers for convex problems
 %   - fmincon: NLP solver with a nonconvex constraint for the LMI
 %   - fminsdp: NLP solver with a convex constraint for the LMI solved with
 %              the ldl method
