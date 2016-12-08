@@ -31,8 +31,8 @@ weights = weights ./ repmat(sum(weights,1)+n_comp*realmin, n_comp, 1);
 
 sum_A_inv = zeros(2,2,length(x));
 for c=1:n_comp
-    eig(inv(lambda.A_inv{c}))
     if (sum( eig(lambda.A_inv{c} + lambda.A_inv{c}') <= 0 ) > 0)
+        eig(lambda.A_inv{c} + lambda.A_inv{c}')
         disp('Not stable!')
     end
     sum_A_inv = sum_A_inv + repmat(reshape(weights(c,:), ...
