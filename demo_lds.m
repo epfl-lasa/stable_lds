@@ -8,8 +8,9 @@ data = generate_mouse_data(limits);
 
 % Optimization options
 clear options;
-options.solver = 'fmincon';
-options.eps_pos_def = 1e-10;            % Pos def eps margin
+options.solver = 'fminsdp';             % YALMIP solvers, e.g. 'sedumi'|
+                                        % NLP solvers 'fmincon' | 'fminsdp'
+options.eps_pos_def = 1e-3;             % Pos def eps margin
 options.verbose = 0;                    % Verbose (0-5)
 options.warning = false;                % Display warning information
 %options.attractor = [0 0]';            % Set the attractor a priori
