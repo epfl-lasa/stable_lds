@@ -8,11 +8,11 @@ data = generate_mouse_data(limits);
 
 % Optimization options
 clear options;
-options.solver = 'sedumi';
-options.eps_pos_def = 0.001;            % Pos def eps margin
-options.verbose = 0;                    % Verbose (0-5)
+options.solver = 'fminsdp';             % YALMIP solvers, e.g. 'sedumi'| 'fmincon' | 'fminsdp'
+options.eps_pos_def = 1e-4;             % Pos def eps margin (YALMIP only)
+options.verbose = 1;                    % Verbose (0-5)
 options.warning = false;                % Display warning information
-%options.attractor = [0 0]';             % Ignored if options.bias=true
+%options.attractor = [0 0]';            % Set the attractor a priori
 options.weights = ones(1,size(data,2)); % Weights for each sample
 
 [A_inv, x_attractor] = estimate_stable_inv_lds(data, options);

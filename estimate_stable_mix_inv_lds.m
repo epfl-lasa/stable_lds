@@ -55,46 +55,78 @@ if ~isfield(options, 'warning')
 end 
 if ~isfield(options, 'eps_pos_def')
     options.eps_pos_def = 1e-3;
-end 
-
-options_solver=sdpsettings('solver',options.solver, ...
-                           'verbose', options.verbose, ...
-                           'warning', options.warning);
+end
 
 n_comp = size(weights,1);
 A_inv_out = cell(n_comp,1);
-
-% Solver variables
 d=size(data,1)/2;
-A_inv = sdpvar(d,d,n_comp,'full');
-x_star = sdpvar(d,1);
-error = sdpvar(d,size(data,2), n_comp);
-objective_function=0;
-C = [];
-for i = 1:n_comp
-    objective_function = objective_function ...
-                                + sum(weights(i,:).*(sum(error(:,:,i).^2)));
-    C = C + [error(:,:,i) == -A_inv(:,:,i)*data(d+1:2*d,:) ...
-                                + repmat(x_star,1,size(data,2))-data(1:d,:) ];
-    C = C + [A_inv(:,:,i) + A_inv(:,:,i)' >= options.eps_pos_def*eye(d,d)];
-end
 
-% Do not estimate the attractor, set it to the one specified a priori
-if isfield(options, 'attractor')
-    if (size(options.attractor,1) ~= d)
-        error(['The specified attractor should have size ' d 'x1']);
-    else
-        C = C + [x_star == options.attractor];
+if ~strcmp(options.solver, 'fmincon')
+    %% YALMIP solvers
+    options_solver=sdpsettings('solver',options.solver, ...
+                               'verbose', options.verbose, ...
+                               'warning', options.warning);
+
+    % Solver variables
+    A_inv = sdpvar(d,d,n_comp,'full');
+    x_star = sdpvar(d,1);
+    error = sdpvar(d,size(data,2), n_comp);
+    objective_function=0;
+    C = [];
+    for i = 1:n_comp
+        objective_function = objective_function ...
+                                    + sum(weights(i,:).*(sum(error(:,:,i).^2)));
+        C = C + [error(:,:,i) == -A_inv(:,:,i)*data(d+1:2*d,:) ...
+                                    + repmat(x_star,1,size(data,2))-data(1:d,:) ];
+        C = C + [A_inv(:,:,i) + A_inv(:,:,i)' >= options.eps_pos_def*eye(d,d)];
+    end
+
+    % Do not estimate the attractor, set it to the one specified a priori
+    if isfield(options, 'attractor')
+        if (size(options.attractor,1) ~= d)
+            error(['The specified attractor should have size ' d 'x1']);
+        else
+            C = C + [x_star == options.attractor];
+        end
+    end
+
+    % Solve the optimization
+    sol = optimize(C,objective_function,options_solver);
+    if sol.problem~=0
+        warning(sol.info);
+    end
+
+    for i = 1:n_comp
+        A_inv_out{i} = value(A_inv(:,:,i));
+    end
+    x_attractor = value(x_star);
+else
+     %% MATLAB's fmincon
+    opt_options = optimset( 'Algorithm', 'interior-point', 'LargeScale', 'off',...
+        'GradObj', 'on', 'GradConstr', 'on', 'DerivativeCheck', 'off', ...
+        'Display', 'iter', 'TolX', 1e-20, 'TolFun', 1e-20, 'TolCon', 1e-10, ...
+        'MaxFunEval', 200000, 'MaxIter', 1000, 'DiffMinChange', ...
+         1e-10, 'Hessian','off');
+    
+    x_star_0 = mean(data(1:d,:)')';
+    for i = 1:n_comp
+        A_inv_0(:,:,i)= eye(d);
+    end
+    p0 = fold_mix_lds(A_inv_0,x_star_0);
+    
+    data_inv = zeros(size(data));
+    data_inv(1:d,:) = data(d+1:end,:);
+    data_inv(d+1:end,:) = data(1:d,:);
+    
+    constraints_handle = @(p)neg_def_lmi_mix(p, d, n_comp, options);
+    objective_handle = @(p)weighted_mse_mix(p, d, n_comp, data_inv, weights);
+
+    % Solve
+    p_opt = fmincon(objective_handle, p0, [], [], [], [], [], [], ...
+                                              constraints_handle, opt_options);
+	% Reshape A and b
+    [A_inv_neg,x_attractor] = unfold_mix_lds(p_opt,d,n_comp);
+    for i = 1:n_comp
+        A_inv_out{i} = -A_inv_neg(:,:,i);
     end
 end
-
-% Solve the optimization
-sol = optimize(C,objective_function,options_solver);
-if sol.problem~=0
-    warning(sol.info);
-end
-
-for i = 1:n_comp
-    A_inv_out{i} = value(A_inv(:,:,i));
-end
-x_attractor = value(x_star);

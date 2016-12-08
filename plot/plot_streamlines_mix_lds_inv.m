@@ -31,15 +31,16 @@ weights = weights ./ repmat(sum(weights,1)+n_comp*realmin, n_comp, 1);
 
 sum_A_inv = zeros(2,2,length(x));
 for c=1:n_comp
+    eig(inv(lambda.A_inv{c}))
+    if (sum( eig(lambda.A_inv{c} + lambda.A_inv{c}') <= 0 ) > 0)
+        disp('Not stable!')
+    end
     sum_A_inv = sum_A_inv + repmat(reshape(weights(c,:), ...
                                 [1 1 length(weights(c,:))]), 2,2,1)...
                                 .*repmat(lambda.A_inv{c},1,1,length(x));
 end
 for i=1:length(x)
     x_dot(:,i) = -sum_A_inv(:,:,i)\(x(:,i) - lambda.x_attractor);
-    if (sum(eig(sum_A_inv(:,:,i) + sum_A_inv(:,:,i)') <= 0) > 0)
-        disp('Not stable!')
-    end
 end
 x_dyn_h = streamslice(x_tmp,y_tmp,reshape(x_dot(1,:),ny,nx), ...
                                 reshape(x_dot(2,:),ny,nx),1,'method','cubic');
