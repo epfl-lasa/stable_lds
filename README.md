@@ -25,8 +25,14 @@ To test the code there are three demos, one for each method. To run them, in the
 for the <b>stable linear dynamical system</b> estimator. A figure will pop up where you can draw as many trajectories as you want. Once you are done click 'stop recording' and you will see the streamlines of the resulting dynamical system as here
 ![Exemplary linear DS](plot/lds.png)
 
-You will get an equivalent demo and interface for the <b>stable linear dynamical system with an inverse procedure</b> ...
+You will get an equivalent demo and interface for the <b>stable linear dynamical system with an inverse procedure</b> 
+```
+>> demo_inv_lds
+```
 ![Exemplary linear DS](plot/inv_lds.png)
 
-... and for the <b>stable nonlinear dynamical system as a mixture of linear dynamical systems</b>. 
+And also for the <b>stable nonlinear dynamical system as a mixture of linear dynamical systems</b>. 
+```
+>> demo_mix_inv_lds
+```
 ![Exemplary linear DS](plot/mix_inv_lds.png)
