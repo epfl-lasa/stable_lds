@@ -2,9 +2,17 @@ function [x_attractor, A_inv_out]=estimate_stable_mix_inv_lds(data, ...
                                                             weights, varargin)
 % ESTIMATE_STABLE_MIX_INV_LDS fits weighted sum of n_comp stable inverse linear
 % dynamical systems to a weighted sum of datapoints. The optimization
-% problem is 
+% problem is for mse criterion 
 %
 % min sum_{c=1}^{n_comp} (weights(c,:).*||(x - (x_star - A_inv_c*x_dot))||
+%
+% or for the maximum likelihood criterion (logdet)
+%
+% min sum_{c=1}^{n_comp} log( det ( weights(c,:).*
+%         (x - (x_star - A_inv_c*x_dot)) * (x - (x_star -A_inv_c*x_dot))' ) )
+%
+% The logdet criterion is necessary for maximum likelihood estimation
+% methods.
 %
 %   USAGE:
 %   [A_inv, x_attractor] = ESTIMATE_STABLE_MIX_INV_LDS(data, weights) fits 
@@ -23,6 +31,7 @@ function [x_attractor, A_inv_out]=estimate_stable_mix_inv_lds(data, ...
 %
 %   Optional input parameters
 %   -options options.solver -- specifies the YALMIP solver or fmincon. 
+%            options.criterion       -- mse|logdet      
 %            options.weights         -- weighting factor for each sample
 %            options.verbose         -- verbose YALMIP option [0-5]
 %
@@ -73,6 +82,9 @@ end
 if ~isfield(options, 'verbose')
     options.verbose = 0;
 end 
+if ~isfield(options, 'criterion')
+    options.criterion = 'logdet';
+end 
 
 n_comp = size(weights,1);
 A_inv_out = cell(n_comp,1);
@@ -98,13 +110,22 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
     data_inv(1:d,:) = data(d+1:end,:);
     data_inv(d+1:end,:) = data(1:d,:);
     
-    objective_handle = @(p)weighted_mse_mix(p, d, n_comp, data_inv, weights);
+    gradobj = 'on';
+    
+    if strcmp(options.criterion, 'logdet')
+        objective_handle = @(p)weighted_logdet_mix(p, d, n_comp, ...
+                                                          data_inv, weights);
+        gradobj = 'off';
+    else
+        objective_handle = @(p)weighted_mse_mix(p, d, n_comp, ...
+                                                          data_inv, weights);
+    end
     
     if strcmp(options.solver, 'fmincon')
         constraints_handle = @(p)neg_def_lmi_mix(p, d, n_comp, options);
         
         opt_options = optimset( 'Algorithm', 'interior-point', ...
-            'LargeScale', 'off', 'GradObj', 'on', 'GradConstr', 'on', ...
+            'LargeScale', 'off', 'GradObj', gradobj, 'GradConstr', 'on', ...
             'DerivativeCheck', 'off', 'Display', 'iter', 'TolX', 1e-20, ...
             'TolFun', 1e-20, 'TolCon', 1e-10, 'MaxFunEval', 200000, ...
             'MaxIter', options.max_iter, ....
@@ -120,8 +141,9 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
         lmi_indexes = 1:s_c:s_c*n_comp;
 
         opt_options = sdpoptionset( 'Algorithm','interior-point',...
-            'GradConstr','on','GradObj','on','Display','iter-detailed',...
+            'GradConstr','on','GradObj', gradobj,'Display','iter-detailed',...
             'method','ldl',...
+            'MaxFunEvals', 10000, ...
             'MaxIter',options.max_iter,...
             'Aind',lmi_indexes, ...      % Mark begin of matrix constraints
             'NLPsolver','fmincon', 'TolX', 1e-20, 'TolFun', 1e-20, ...

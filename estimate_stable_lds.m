@@ -2,10 +2,15 @@ function [A_out, b_out]=estimate_stable_lds(data, varargin)
 % ESTIMATE_STABLE_LDS fits a stable linear dynamical system x_dot = A*x + b
 %   to data
 %
-%   ESTIMATE_STABLE_LDS solves the optimization problem
+%   ESTIMATE_STABLE_LDS solves the mse optimization problem
 %    min (error^2)  subject to:  error == A*x + b - x_dot
 %     A                          A'+A <= -eps*I
-%   
+%
+%   or for the maximum likelihood criterion (logdet)
+%
+%   min log( det ( weights.*
+%         (x_dot - A*x - b) * (x_dot - A*x - b)' ) )
+%
 %   [A_out, b_out] = ESTIMATE_STABLE_LDS(data, options) returns the system
 %   matrix and the bias of a linear dynamical system
 %
@@ -18,7 +23,7 @@ function [A_out, b_out]=estimate_stable_lds(data, varargin)
 %   linear dynamical system to the data with the specified options 
 %   
 %   This code provides 3 different solvers for this problem
-%   - YALMIP: solvers for convex problems
+%   - YALMIP: solver for convex problems
 %   - fmincon: NLP solver with a nonconvex constraint for the LMI
 %   - fminsdp: NLP solver with a convex constraint for the LMI solved with
 %              the ldl method
@@ -41,6 +46,7 @@ function [A_out, b_out]=estimate_stable_lds(data, varargin)
 %
 %   Optional input parameters
 %   -options options.solver -- specifies the YALMIP solver or fmincon. 
+%            options.criterion       -- mse|logdet      
 %            options.weights         -- weighting factor for each sample
 %            options.verbose         -- verbose YALMIP option [0-5]
 %
@@ -81,6 +87,9 @@ end
 if ~isfield(options, 'weights')
     options.weights =  ones(1,size(data,2));
 end
+if ~isfield(options, 'criterion')
+    options.criterion = 'mse';
+end 
 
 d=size(data,1)/2;
 
@@ -98,11 +107,19 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
     b0 = zeros(d,1);
     p0 = fold_lds(A0,b0);
 
-    objective_handle = @(p)weighted_mse_linear(p, d, data, options.weights);
+    gradobj = 'on';
+    if strcmp(options.criterion, 'logdet')
+        objective_handle = @(p)weighted_logdet_linear(p, d, data, ...
+                                                            options.weights);
+        gradobj = 'off';
+    else
+        objective_handle = @(p)weighted_mse_linear(p, d, data, ...
+                                                            options.weights);
+    end
     
     if strcmp(options.solver, 'fmincon')
         opt_options = optimset( 'Algorithm', 'interior-point', ...
-        'LargeScale', 'off', 'GradObj', 'on', 'GradConstr', 'on', ...
+        'LargeScale', 'off', 'GradObj', gradobj, 'GradConstr', 'on', ...
         'DerivativeCheck', 'off', 'Display', 'iter', 'TolX', 1e-12, ...
         'TolFun', 1e-12, 'TolCon', 1e-12, 'MaxFunEval', 200000, ...
         'MaxIter', options.max_iter, 'DiffMinChange',  1e-10, 'Hessian','off');
@@ -114,7 +131,7 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
                                              constraints_handle, opt_options);
     else % fminsdp
         opt_options = sdpoptionset( 'Algorithm','interior-point',...
-            'GradConstr','on','GradObj','on','Display','iter-detailed',...
+            'GradConstr','on','GradObj',gradobj,'Display','iter-detailed',...
             'method','ldl',...
             'MaxIter',options.max_iter,...
             'Aind',1,...                 % Marks begin of matrix constraint

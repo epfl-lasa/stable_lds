@@ -10,6 +10,11 @@ function [A_inv, x_attractor]=estimate_stable_inv_lds(data, varargin)
 %   min (error^2)  subject to:  error == x_attractor - A_inv x_dot - x
 %       A                       A_inv + A_inv' >= eps*I
 %
+%   or for the maximum likelihood criterion (logdet)
+%
+%   min log( det ( weights.*
+%         (x - (x_star - A_inv*x_dot)) * (x - (x_star -A_inv*x_dot))' ) )
+%
 %   USAGE:
 %   [A_inv, x_attractor] = ESTIMATE_STABLE_INV_LDS(data) fits a linear
 %   dynamical system to the data and returns the inverse of the system matrix
@@ -42,6 +47,7 @@ function [A_inv, x_attractor]=estimate_stable_inv_lds(data, varargin)
 %
 %   Optional input parameters
 %   -options options.solver -- specifies the YALMIP solver or fmincon. 
+%            options.criterion       -- mse|logdet  
 %            options.weights         -- weighting factor for each sample
 %            options.verbose         -- verbose YALMIP option [0-5]
 %
@@ -81,6 +87,10 @@ end
 if ~isfield(options, 'weights')
     options.weights =  ones(1,size(data,2));
 end
+if ~isfield(options, 'criterion')
+    options.criterion = 'mse';
+end 
+
 
 d=size(data,1)/2;
 
@@ -101,11 +111,19 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
     data_inv(1:d,:) = data(d+1:end,:);
     data_inv(d+1:end,:) = data(1:d,:);
 
-    objective_handle = @(p)weighted_mse_linear(p, d, data_inv, options.weights);
+    gradobj = 'on';
+    if strcmp(options.criterion, 'logdet')
+        objective_handle = @(p)weighted_logdet_linear(p, d, ...
+                                                   data_inv, options.weights);
+        gradobj = 'off';
+    else
+        objective_handle = @(p)weighted_mse_linear(p, d, ...
+                                                   data_inv, options.weights);
+    end
     
     if strcmp(options.solver, 'fmincon')
         opt_options = optimset( 'Algorithm', 'interior-point', ...
-        'LargeScale', 'off', 'GradObj', 'on', 'GradConstr', 'on', ...
+        'LargeScale', 'off', 'GradObj', gradobj, 'GradConstr', 'on', ...
         'DerivativeCheck', 'off', 'Display', 'iter', 'TolX', 1e-12, ...
         'TolFun', 1e-12, 'TolCon', 1e-12, 'MaxFunEval', 200000, ...
         'MaxIter', options.max_iter, 'DiffMinChange',  1e-10, 'Hessian','off');
@@ -117,7 +135,7 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
                                              constraints_handle, opt_options);
     else % fminsdp
         opt_options = sdpoptionset( 'Algorithm','interior-point',...
-            'GradConstr','on','GradObj','on','Display','iter-detailed',...
+            'GradConstr','on','GradObj',gradobj,'Display','iter-detailed',...
             'method','ldl',...
             'MaxIter',options.max_iter,...
             'Aind',1,...                 % Marks begin of matrix constraint
