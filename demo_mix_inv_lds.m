@@ -4,7 +4,7 @@ setup_stable_lds;
 % Get trajectories from mouse
 limits = [0 100 0 100];
 data = generate_mouse_data(limits);
-n_comp = 5;
+n_comp = 7;
 em_iterations = 5;
 
 % Optimization options
