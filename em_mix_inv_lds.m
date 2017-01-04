@@ -108,6 +108,6 @@ for it = 1:options.n_iter
         lambda.cov_xloc{c} = crop_min_eig(cov_c_loc, options.min_eig_loc);
         lambda.mu_xloc{c} = mu_c_loc';
     end
-    lambda.pi = (1/n_comp) * ones(n_comp,1);
+    lambda.pi = sum(weights,2)/sum(sum(weights));
 end
 end
