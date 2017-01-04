@@ -6,14 +6,17 @@ function [cost] = weighted_logdet_mix(p, d, n_comp, data, weights)
 [A,b] = unfold_mix_lds(p,d,n_comp);
 cost=0;
 error = zeros(d,size(data,2),n_comp);
-dcost_db = zeros(d,1);
-dcost_dA = zeros(d,d,n_comp);
 
 for i = 1:n_comp
-    error(:,:,i) = A(:,:,i)*data(1:d,:) ...
-                                + repmat(b,1,size(data,2))-data(d+1:2*d,:); 
-    covariance = 1/sum(weights(i,:))* ...
-        (repmat(weights(i,:), d, 1).*error(:,:,i)*error(:,:,i)');
-    cost = cost + log(det(covariance));
+    sum_w_i = sum(weights(i,:));
+    if sum_w_i <= 10^(floor(log10(realmin))/d)
+        cost = cost + log(realmin);
+    else 
+        error(:,:,i) = A(:,:,i)*data(1:d,:) ...
+                                    + repmat(b,1,size(data,2))-data(d+1:2*d,:); 
+        covariance = 1/sum_w_i * ...
+            (repmat(weights(i,:), d, 1).*error(:,:,i)*error(:,:,i)');
+        cost = cost + log(det(covariance));
+    end
 end
-%% TODO: Add derivatives. Look for an efficient way of computing it.
+%% TODO: Add derivatives. Look for an efficient way of computing them.

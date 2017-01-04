@@ -2,8 +2,6 @@ function [cost] = weighted_logdet_linear(p, d, data, weights)
 % This function computes the log(det(error_covariance)) weighting each
 % sample with weights. This is the maximum likelihood estimator in a
 % constrained setting.
-% It returns the value and the derivatives w.r.t. the bias and the
-% linear term
 [A,b] = unfold_lds(p,d);
 
 model_error = (A*data(1:d,:) ...
