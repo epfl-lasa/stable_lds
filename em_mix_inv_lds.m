@@ -53,10 +53,10 @@ if ~isfield(options, 'n_iter')
     options.n_iter = 5;
 end
 if ~isfield(options, 'min_eig_loc')
-    options.min_eig_loc = 1;
+    options.min_eig_loc = 1e-1;
 end
 if ~isfield(options, 'min_eig_reg')
-    options.min_eig_reg = 1e-1;
+    options.min_eig_reg = 1e-3;
 end
 
 d = size(data,1)/2;
@@ -66,9 +66,10 @@ x_dot_obs = data(d+1:end,:)';
 % Init model parameters with kmeans
 lambda= init_kmeans_mix_lds(data, n_comp, options);
 weights = zeros(n_comp, size(data,2));
+loglik = zeros(options.n_iter,1);
 
 for it = 1:options.n_iter
-    %% E step    
+    %% E step
     for c=1:n_comp
         weights(c,:) = ( mvnpdf(x_obs,...
                         (repmat(lambda.x_attractor, 1, size(data,2)) ...
@@ -78,12 +79,17 @@ for it = 1:options.n_iter
                                              lambda.cov_xloc{c}) ...
                        .* lambda.pi(c) )';
     end
+    loglik(it) = sum(log(sum(weights,1)));
     weights = weights ./ repmat(sum(weights,1) + realmin, n_comp, 1);
 
     %% M step
-    % Max A_invs and x_attractor
+    % Initial values for the optimization
+    for i = 1:n_comp
+        A_inv_old(:,:,i) = -lambda.A_inv{i};
+    end
+    % Max A_invs and x_attractor    
     [lambda.x_attractor, lambda.A_inv] = estimate_stable_mix_inv_lds( ...
-                                [x_obs x_dot_obs]', weights, options);
+                                [x_obs x_dot_obs]', weights, options, lambda.x_attractor, A_inv_old);
 
     for c=1:n_comp
         % Max regression error covariance cov_reg
@@ -92,8 +98,7 @@ for it = 1:options.n_iter
         cov_reg = 1/sum(weights(c,:))* ...
                         (repmat(weights(c,:), size(model_error,1), 1) ... 
                             .* model_error*model_error');
-        lambda.cov_reg{c} = diag(diag(crop_min_eig(cov_reg, ...
-                                                       options.min_eig_reg)));
+        lambda.cov_reg{c} = crop_min_eig(cov_reg, options.min_eig_reg);
 
         % Max local gaussian x_loc
         w_factor = weights(c,:);
@@ -110,4 +115,5 @@ for it = 1:options.n_iter
     end
     lambda.pi = sum(weights,2)/sum(sum(weights));
 end
+loglik
 end
