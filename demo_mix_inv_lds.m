@@ -12,9 +12,10 @@ clear options;
 options.n_iter = em_iterations;        % Max number of EM iterations
 options.solver = 'fminsdp';              % Solver
 options.criterion = 'logdet';              % Solver
-options.c_reg = -1e-4;          % Pos def eps margin
+options.c_reg = -1e-3;                  % Pos def eps margin
 options.verbose = 1;                    % Verbose (0-5)
 options.warning = true;                % Display warning information
+options.max_iter = 50;
 
 lambda = em_mix_inv_lds(data, n_comp, options);
 
