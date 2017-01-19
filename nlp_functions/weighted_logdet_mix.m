@@ -16,7 +16,8 @@ for i = 1:n_comp
                                     + repmat(b,1,size(data,2))-data(d+1:2*d,:); 
         covariance = 1/sum_w_i * ...
             (repmat(weights(i,:), d, 1).*error(:,:,i)*error(:,:,i)');
-        cost = cost + log(det(covariance));
+        covariance = covariance + 1*eye(size(covariance,1));
+        cost = cost + sum_w_i*log(det(covariance));
     end
 end
 %% TODO: Add derivatives. Look for an efficient way of computing them.
