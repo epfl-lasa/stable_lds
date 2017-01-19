@@ -71,6 +71,10 @@ function [x_attractor, A_inv_out]=estimate_stable_mix_inv_lds(data, ...
 % Check for options
 if nargin > 2
     options = varargin{1};
+    if nargin > 3
+        A_inv_0 = varargin{3};
+        x_star_0 = varargin{2};
+    end
 else
     options = [];
 end
@@ -99,10 +103,12 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
             options.c_reg =  -1e-3;
     end
     
-    A_inv_0 = zeros(d,d,n_comp);
-    x_star_0 = mean(data(1:d,:),2);
-    for i = 1:n_comp
-        A_inv_0(:,:,i)= -eye(d);
+    if ~exist('x_star_0', 'var')
+        A_inv_0 = zeros(d,d,n_comp);
+        x_star_0 = mean(data(1:d,:),2);
+        for i = 1:n_comp
+            A_inv_0(:,:,i)= -eye(d);
+        end
     end
     p0 = fold_mix_lds(A_inv_0,x_star_0);
     
@@ -147,7 +153,7 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
             'MaxIter',options.max_iter,...
             'Aind',lmi_indexes, ...      % Mark begin of matrix constraints
             'NLPsolver','fmincon', 'TolX', 1e-10, 'TolFun', 1e-10, ...
-            'TolCon', 1e-10,  'DiffMinChange', 1e-10, 'Hessian','off');
+            'TolCon', 1e-20,  'DiffMinChange', 1e-10, 'Hessian','off');
         % Solve
         p_opt = fminsdp(objective_handle, p0, [], [], [], [], [], [], ...
                                               constraints_handle, opt_options);
