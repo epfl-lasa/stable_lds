@@ -5,13 +5,14 @@ setup_stable_lds;
 limits = [0 100 0 100];
 data = generate_mouse_data(limits);
 n_comp = 7;
-em_iterations = 5;
+em_iterations = 10;
 
 % Optimization options
 clear options;
 options.n_iter = em_iterations;        % Max number of EM iterations
 options.solver = 'fminsdp';              % Solver
-options.eps_pos_def = 1e-3;          % Pos def eps margin
+options.criterion = 'logdet';              % Solver
+options.c_reg = -1e-4;          % Pos def eps margin
 options.verbose = 1;                    % Verbose (0-5)
 options.warning = true;                % Display warning information
 
