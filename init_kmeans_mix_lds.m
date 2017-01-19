@@ -32,8 +32,6 @@ for c=1:n_comp
     lambda.cov_reg{c} = ...
         crop_min_eig(1/size(x_obs_c,2)*(model_error*model_error'), ...
                                                         options.min_eig_reg);
-    % Only diagonal noise
-    lambda.cov_reg{c} = diag(diag(lambda.cov_reg{c}));
     
     lambda.mu_xloc{c} = mean(x_obs_c)';
     lambda.cov_xloc{c} = crop_min_eig(cov(x_obs_c), options.min_eig_loc);
