@@ -9,12 +9,13 @@ dcost_db = zeros(d,1);
 dcost_dA = zeros(d,d,n_comp);
 
 for i = 1:n_comp
+    sum_w_i = sum(weights(i,:));
     error(:,:,i) = A(:,:,i)*data(1:d,:) ...
                                 + repmat(b,1,size(data,2))-data(d+1:2*d,:); 
-    cost = cost + sum(weights(i,:).*(sum(error(:,:,i).^2)));
+    cost = cost + sum_w_i*(sum(weights(i,:).*(sum(error(:,:,i).^2)))-d);
     if nargout > 1
-        dcost_dA(:,:,i) = 2*(repmat(weights(i,:), [d 1]).*error(:,:,i))*data(1:d,:)';
-        dcost_db = dcost_db + sum(2*(repmat(weights(i,:), [d 1]).*error(:,:,i)),2);
+        dcost_dA(:,:,i) = 2*sum_w_i*(repmat(weights(i,:), [d 1]).*error(:,:,i))*data(1:d,:)';
+        dcost_db = dcost_db + sum_w_i*sum(2*(repmat(weights(i,:), [d 1]).*error(:,:,i)),2);
     end
 end
 if nargout > 1
