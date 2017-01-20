@@ -5,6 +5,7 @@ function [ lambda ] = init_kmeans_mix_lds(data, n_comp, options)
 d=size(data,1)/2;
 x_obs = data(1:d,:)';
 x_dot_obs = data(d+1:end,:)';
+dir_x_dot = x_dot_obs ./ repmat(sqrt(sum(x_dot_obs.^2,2)),1,size(x_dot_obs,2));
 
 % The structure containing all model parameters
 lambda.mu_xloc = cell(n_comp,1);
@@ -12,7 +13,7 @@ lambda.cov_xloc = cell(n_comp,1);
 lambda.cov_reg = cell(n_comp,1);
 
 % Compute kmeans
-[idx,~] = kmeans([x_obs x_dot_obs], n_comp, 'Replicates',10);
+[idx,~] = kmeans([x_obs 0.5*dir_x_dot], n_comp, 'Replicates',10);
 
 weights = zeros(n_comp, size(data,2));
 for c=1:n_comp
