@@ -10,9 +10,11 @@ dcost_dA = zeros(d,d,n_comp);
 
 for i = 1:n_comp
     sum_w_i = sum(weights(i,:));
+    pi_max_i = sum(weights(i,:))/sum(sum(weights));
     error(:,:,i) = A(:,:,i)*data(1:d,:) ...
                                 + repmat(b,1,size(data,2))-data(d+1:2*d,:); 
-    cost = cost + 0.5*sum_w_i*(sum(weights(i,:).*(sum(error(:,:,i).^2)))-d);
+    cost = cost + 0.5*(sum_w_i*(sum(weights(i,:).*(sum(error(:,:,i).^2)))-d) ...
+                          + size(weights,2)*(log(pi_max_i) + (1 + log(2*pi))));
     if nargout > 1
         dcost_dA(:,:,i) = sum_w_i*(repmat(weights(i,:), [d 1]).*error(:,:,i))*data(1:d,:)';
         dcost_db = dcost_db + sum_w_i*sum(repmat(weights(i,:), [d 1]).*error(:,:,i),2);
