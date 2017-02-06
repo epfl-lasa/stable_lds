@@ -53,7 +53,7 @@ if ~isfield(options, 'n_iter')
     options.n_iter = 5;
 end
 if ~isfield(options, 'min_eig_loc')
-    options.min_eig_loc = 1e-2;
+    options.min_eig_loc = 1e0;
 end
 if ~isfield(options, 'min_eig_reg')
     options.min_eig_reg = 1e-5;
