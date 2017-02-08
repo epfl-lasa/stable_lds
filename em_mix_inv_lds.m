@@ -53,7 +53,7 @@ if ~isfield(options, 'n_iter')
     options.n_iter = 5;
 end
 if ~isfield(options, 'min_eig_loc')
-    options.min_eig_loc = 1e-5;
+    options.min_eig_loc = 1e0;
 end
 if ~isfield(options, 'min_eig_reg')
     options.min_eig_reg = 1e-10;
@@ -82,7 +82,7 @@ for it = 1:options.n_iter
     loglik(it) = sum(log(sum(weights,1)));
     weights = weights ./ repmat(sum(weights,1), n_comp, 1);
     
-    if it > 1 && (abs(loglik(it) - loglik(it-1)) < 1e-20) 
+    if it > 1 && (abs(loglik(it) - loglik(it-1)) < 1e-3) 
         break;
     end
 

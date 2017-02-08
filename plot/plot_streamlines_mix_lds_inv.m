@@ -1,4 +1,4 @@
-function plot_streamlines_mix_lds_inv(lambda, limits)
+function [p_h, l_h] = plot_streamlines_mix_lds_inv(lambda, limits)
 n_comp = length(lambda.pi);
 d = size(lambda.A_inv{1},1);
 if d~=2
@@ -47,19 +47,23 @@ x_dyn_h = streamslice(x_tmp,y_tmp,reshape(x_dot(1,:),ny,nx), ...
 hold on;
 % Plot attractor
 x_attractor_h = plot(lambda.x_attractor(1), lambda.x_attractor(2), ...
-                                        'o', 'LineWidth', 6,'MarkerSize', 12);
+                                       'bo', 'LineWidth', 6,'MarkerSize', 12);
 axis([ax.XLim ax.YLim]);
 box on;
 legend([x_dyn_h(1) x_attractor_h], 'xdot', 'attractor');
 
+p_e = [];
 for c=1:n_comp
-    p_handle = plot_ellipsoid(lambda.mu_xloc{c}, ...
-                                        lambda.cov_xloc{c});
-    set(p_handle, 'EdgeColor',[1 0.5 0], 'EdgeAlpha', 0.3, ...
+    p_e_c = plot_ellipsoid(lambda.mu_xloc{c}, ...
+                                        lambda.cov_xloc{c})
+    p_e = [p_e p_e_c];
+    set(p_e(c), 'EdgeColor',[1 0.5 0], 'EdgeAlpha', 0.3, ...
                   'FaceColor',[1 0.5 0], 'FaceAlpha', 0.05);
 end
 
-legend([x_dyn_h(1) x_attractor_h p_handle], 'xdot', 'attractor', ...
+l_h = legend([x_dyn_h(1) x_attractor_h p_e], 'xdot', 'attractor', ...
                                                             'Local component');
+
+p_h = [x_dyn_h' x_attractor_h p_e];
 end
 
