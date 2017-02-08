@@ -165,8 +165,8 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
     end
 else
     %% YALMIP SQP solvers
-    if ~isfield(options, 'eps_constraints')
-        options.eps_pos_def = 1e-3;
+    if ~isfield(options, 'c_reg')
+        options.c_reg = 1e-3;
     end
     if ~isfield(options, 'warning')
         options.warning = 0;
@@ -175,6 +175,7 @@ else
                                'verbose', options.verbose, ...
                                'warning', options.warning);
 
+    yalmip('clear');
     % Solver variables
     A_inv = sdpvar(d,d,n_comp,'full');
     x_star = sdpvar(d,1);
@@ -183,10 +184,10 @@ else
     C = [];
     for i = 1:n_comp
         objective_function = objective_function ...
-                                    + sum(weights(i,:).*(sum(error(:,:,i).^2)));
+         + (1/size(data,2))*sum(weights(i,:))*(sum(weights(i,:).*(sum(error(:,:,i).^2))));
         C = C + [error(:,:,i) == -A_inv(:,:,i)*data(d+1:2*d,:) ...
                                     + repmat(x_star,1,size(data,2))-data(1:d,:) ];
-        C = C + [A_inv(:,:,i) + A_inv(:,:,i)' >= options.eps_pos_def*eye(d,d)];
+        C = C + [A_inv(:,:,i) + A_inv(:,:,i)' >= options.c_reg*eye(d,d)];
     end
 
     % Do not estimate the attractor, set it to the one specified a priori
