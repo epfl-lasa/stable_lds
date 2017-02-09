@@ -13,6 +13,5 @@ a = kron(U(:,1),xc); b = kron(U(:,2),yc); c = kron(U(:,3),zc);
 data = a+b+c; m = size(data,2);
 x = data(1:m,:)+mu(1); y = data(m+1:2*m,:)+mu(2); z = data(2*m+1:end,:)+mu(3);
 obj = mesh(real(x),real(y),real(z));
-
 end
 

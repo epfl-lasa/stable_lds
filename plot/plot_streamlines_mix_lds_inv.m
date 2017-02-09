@@ -55,7 +55,7 @@ legend([x_dyn_h(1) x_attractor_h], 'xdot', 'attractor');
 p_e = [];
 for c=1:n_comp
     p_e_c = plot_ellipsoid(lambda.mu_xloc{c}, ...
-                                        lambda.cov_xloc{c})
+                                        lambda.cov_xloc{c});
     p_e = [p_e p_e_c];
     set(p_e(c), 'EdgeColor',[1 0.5 0], 'EdgeAlpha', 0.3, ...
                   'FaceColor',[1 0.5 0], 'FaceAlpha', 0.05);
