@@ -19,7 +19,7 @@ options.n_iter = em_iterations;        % Max number of EM iterations
 options.solver = 'mosek';              % Solver (If you don't have mosek 
                                        % use 'sedumi', it's free)
 options.criterion = 'mse';              % Solver
-options.c_reg = 3e-1;                  % Pos def eps margin
+options.c_reg = 1e-1;                  % Pos def eps margin
 options.verbose = 1;                    % Verbose (0-5)
 options.warning = true;                % Display warning information
 options.max_iter = 30;
@@ -90,8 +90,8 @@ function ret = stop_demonstration(~,~)
     set(gcf,'WindowButtonDownFcn',[]);
     
     % Savitzky-Golay filter and derivatives
-    dt = mean(diff(X(3,:)')); % Average sample time (X(3,:) contains time)
 	if (size(X,2) > f_window)
+        dt = mean(diff(X(3,:)')); % Average sample time (X(3,:) contains time)
         dx_nth = sgolay_time_derivatives(X(1:2,:)', dt, 2, 3, f_window);
         data = [data [dx_nth(:,:,1),dx_nth(:,:,2)]'];
     end
