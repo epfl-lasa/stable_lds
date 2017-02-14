@@ -53,10 +53,10 @@ if ~isfield(options, 'n_iter')
     options.n_iter = 5;
 end
 if ~isfield(options, 'min_eig_loc')
-    options.min_eig_loc = 1e0;
+    options.min_eig_loc = 1e-100;
 end
 if ~isfield(options, 'min_eig_reg')
-    options.min_eig_reg = 1e-10;
+    options.min_eig_reg = 1e-100;
 end
 
 d = size(data,1)/2;
