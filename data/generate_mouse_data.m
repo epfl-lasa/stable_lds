@@ -1,4 +1,4 @@
-function data = generate_mouse_data(limits)
+function data = generate_mouse_data(limits, varargin)
 % GENERATE_MOUSE_DATA(NTH_ORDER, N_DOWNSAMPLE) request the user to give
 % demonstrations of a trajectories in a 2D workspace using the mouse cursor
 % The data is stored in an [x ; dx/dt] structure  
@@ -7,6 +7,12 @@ function data = generate_mouse_data(limits)
 %   # Authors: Klas Kronander, Wissam Bejjani and Jose Medina
 %   # EPFL, LASA laboratory
 %   # Email: jrmout@gmail.com
+
+%
+struct_output = false;
+if nargin>1
+    struct_output = true;
+end
 
 %% Drawing plot
 fig = figure();
@@ -67,7 +73,11 @@ for dem = 1:n_demonstrations
     x_obs_dem = x_obs{dem}(1:2,:)';
     dt = mean(diff(x_obs{dem}(3,:)')); % Average sample time (Third dimension contains time)
     dx_nth = sgolay_time_derivatives(x_obs_dem, dt, 2, 3, 21);
-    data = [data [dx_nth(:,:,1),dx_nth(:,:,2)]'];
+    if (struct_output)
+        data{dem} = [dx_nth(:,:,1),dx_nth(:,:,2)]';
+    else
+        data = [data [dx_nth(:,:,1),dx_nth(:,:,2)]'];
+    end
 end
 
 return
