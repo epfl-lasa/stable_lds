@@ -184,9 +184,10 @@ else
     C = [];
     for i = 1:n_comp
         objective_function = objective_function ...
-         + (1/size(data,2))*sum(weights(i,:))*(sum(weights(i,:).*(sum(error(:,:,i).^2))));
+         + (1/size(data,2))*sum(weights(i,:))*((1/size(data,2)) * ...
+                                    sum(weights(i,:).*(sum(error(:,:,i).^2))));
         C = C + [error(:,:,i) == -A_inv(:,:,i)*data(d+1:2*d,:) ...
-                                    + repmat(x_star,1,size(data,2))-data(1:d,:) ];
+                                 + repmat(x_star,1,size(data,2))-data(1:d,:) ];
         C = C + [A_inv(:,:,i) + A_inv(:,:,i)' >= options.c_reg*eye(d,d)];
     end
 
