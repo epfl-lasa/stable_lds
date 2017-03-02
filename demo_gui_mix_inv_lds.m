@@ -1,4 +1,4 @@
-function run_demo_gui()
+function demo_gui_mix_inv_lds()
 % A very simple self-explanatory GUI to quickly test the performance of
 % the SIEDS model. After drawing a trajectory, the model will be trained
 % automatically. If you want to discard all the previous data, press the
@@ -6,7 +6,7 @@ function run_demo_gui()
 
 setup_stable_lds;
 % For mosek solver only (put your own path!!) 
-addpath('~/Dropbox/work/3rdParty/mosek/8/toolbox/r2014a')
+%addpath('~/Dropbox/work/3rdParty/mosek/8/toolbox/r2014a')
 
 %% Params
 % Model options
@@ -16,19 +16,20 @@ em_iterations = 1;
 % Optimization options
 clear options;
 options.n_iter = em_iterations;        % Max number of EM iterations
-options.solver = 'mosek';              % Solver (If you don't have mosek 
+options.solver = 'sedumi';              % Solver (If you don't have mosek 
                                        % use 'sedumi', it's free)
 options.criterion = 'mse';              % Solver
-options.c_reg = 5e-1;                  % Pos def eps margin
+options.c_reg = 3e-1;                  % Pos def eps margin
 options.verbose = 1;                    % Verbose (0-5)
 options.warning = true;                % Display warning information
 options.max_iter = 30;
+options.min_eig_loc = 1e-20;
 limits = [0 100 0 100];
 lambda = [];
 p_handle = [];
 
 % Window size for the Savitzky-Golay filter
-f_window = 25;
+f_window = 15;
 
 %% Figure setup
 fig = figure();
@@ -112,7 +113,7 @@ function ret = stop_demonstration(~,~)
     lambda = em_mix_inv_lds(data, n_comp, options);
     disp('Done!');
     delete(p_handle);
-    [p_handle, l_handle] = plot_streamlines_mix_lds_inv(lambda,limits);
+    [p_handle, l_handle] = plot_streamlines_mix_inv_lds(lambda,limits);
     set(l_handle, 'Position', [0.365 0.0191 0.291 0.124]);
     ret = 1;
 end

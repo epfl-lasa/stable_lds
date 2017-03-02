@@ -1,4 +1,4 @@
-function x_dot = get_expected_dynamics(lambda, x)
+function x_dot = get_dyn_mix_inv_lds(lambda, x)
 n_comp = length(lambda.pi);
 x_dot = zeros(size(x));
 
@@ -8,12 +8,12 @@ weights = zeros(n_comp, size(x,2));
 for c=1:n_comp
     weights(c,:) = ( mvnpdf(x', lambda.mu_xloc{c}', ...
                                          lambda.cov_xloc{c}) ...
-                   .* lambda.pi(c) )'; % TODO: In case of numerical 
+                   .* lambda.pi(c) )' + realmin; % TODO: In case of numerical 
                                                  % problems, instead of realmin
                                                  % choose closest component 
                                                  % based on Mahalanobis dist
 end
-weights = weights ./ repmat(sum(weights,1), n_comp, 1); 
+weights = weights ./ (repmat(sum(weights,1), n_comp, 1) + n_comp*realmin); 
 
 sum_A_inv = zeros(2,2,length(x));
 for c=1:n_comp

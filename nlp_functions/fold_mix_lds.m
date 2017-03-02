@@ -1,3 +1,3 @@
-function p = fold_mix_lds(A,b)
-    p = [A(:) ; b];
+function p = fold_mix_lds(A,x_star)
+    p = [A(:) ; x_star];
 end

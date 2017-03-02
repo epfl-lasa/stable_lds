@@ -1,6 +1,6 @@
-function [p_h, l_h] = plot_streamlines_mix_lds_inv(lambda, limits)
+function [p_h, l_h] = plot_streamlines_mix_lds(lambda, limits)
 n_comp = length(lambda.pi);
-d = size(lambda.A_inv{1},1);
+d = size(lambda.A{1},1);
 if d~=2
     disp('This function can only be used for 2D settings.')
     return
@@ -16,32 +16,7 @@ ax_y=linspace(ax.YLim(1),ax.YLim(2),ny);
 [x_tmp,y_tmp]=meshgrid(ax_x,ax_y); 
 x=[x_tmp(:) y_tmp(:)]';
 
-weights = zeros(n_comp, size(x,2));
-
-% Plot dynamics
-for c=1:n_comp
-    weights(c,:) = ( mvnpdf(x', lambda.mu_xloc{c}', ...
-                                         lambda.cov_xloc{c}) ...
-                   .* lambda.pi(c) )' + realmin; % TODO: In case of numerical 
-                                                 % problems, instead of realmin
-                                                 % choose closest component 
-                                                 % based on Mahalanobis dist
-end
-weights = weights ./ repmat(sum(weights,1)+n_comp*realmin, n_comp, 1); 
-
-sum_A_inv = zeros(2,2,length(x));
-for c=1:n_comp
-    if (sum( eig(lambda.A_inv{c} + lambda.A_inv{c}') <= 0 ) > 0)
-        eig(lambda.A_inv{c} + lambda.A_inv{c}')
-        disp('Not stable!')
-    end
-    sum_A_inv = sum_A_inv + repmat(reshape(weights(c,:), ...
-                                [1 1 length(weights(c,:))]), 2,2,1)...
-                                .*repmat(lambda.A_inv{c},1,1,length(x));
-end
-for i=1:length(x)
-    x_dot(:,i) = -sum_A_inv(:,:,i)\(x(:,i) - lambda.x_attractor);
-end
+x_dot = get_dyn_mix_lds(lambda, x);
 x_dyn_h = streamslice(x_tmp,y_tmp,reshape(x_dot(1,:),ny,nx), ...
                                 reshape(x_dot(2,:),ny,nx),1,'method','cubic');
 hold on;

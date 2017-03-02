@@ -122,7 +122,7 @@ for c = 1:max_c
         title('Streamlines SIEDS')
     end
 
-    x_dot_sieds = get_expected_dynamics(lambda, Data(1:d,:));
+    x_dot_sieds = get_dyn_mix_inv_lds(lambda, Data(1:d,:));
     mse_sieds(c) = mse_sieds(c) + (1/size(Data,2)) * ...
                                     sum(sqrt(sum((x_dot_sieds - Data(d+1:end, :)).^2)));
     end

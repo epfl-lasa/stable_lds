@@ -1,15 +1,10 @@
-function [lambda]=em_mix_inv_lds(data, n_comp, varargin)
-% EM_MIX_INV_LDS fits a Gaussian mixture of stable inverse linear 
+function [lambda]=em_mix_lds(data, n_comp, varargin)
+% EM_MIX_LDS fits a Gaussian mixture of stable linear 
 % dynamical systems to data with the EM algorithm.
-% 
 %   USAGE:
-%   [lambda] = EM_MIX_INV_LDS(data, n_comp) fits a linear
-%   dynamical system to the data and returns the inverse of the system matrix
-%   and the estimated attractor.
-%
-%   [lambda] = EM_MIX_INV_LDS(data, n_comp) fits a linear
-%   dynamical system to the data and returns the inverse of the system matrix
-%   and the estimated attractor.
+%   [lambda] = EM_MIX_LDS(data, n_comp) fits a mixture of linear
+%   dynamical systems to the data and returns a local optimum of the
+%   maximum likelihood optimization problem
 %
 %   INPUT PARAMETERS:
 %   -data    data = [x; x_dot] and size(data) = [d*2,n_data_points], 
@@ -62,16 +57,16 @@ x_obs = data(1:d,:)';
 x_dot_obs = data(d+1:end,:)';
 
 % Init model parameters with kmeans
-lambda= init_kmeans_mix_inv_lds(data, n_comp, options);
+lambda= init_kmeans_mix_lds(data, n_comp, options);
 weights = zeros(n_comp, size(data,2));
 loglik = zeros(options.n_iter,1);
 
 for it = 1:options.n_iter
     %% E step
     for c=1:n_comp
-        weights(c,:) = ( mvnpdf(x_obs,...
-                        (repmat(lambda.x_attractor, 1, size(data,2)) ...
-                                        - lambda.A_inv{c}*x_dot_obs')',...
+        weights(c,:) = ( mvnpdf(x_dot_obs,...
+                        (lambda.A{c}*(x_obs' - ...
+                        repmat(lambda.x_attractor, [1 size(x_obs,1)])))',...
                          lambda.cov_reg{c}) ...
                        .* mvnpdf(x_obs, lambda.mu_xloc{c}', ...
                                              lambda.cov_xloc{c}) ...
@@ -87,16 +82,16 @@ for it = 1:options.n_iter
     %% M step
     % Initial values for the optimization
     for i = 1:n_comp
-        A_inv_old(:,:,i) = -lambda.A_inv{i};
+        A_old(:,:,i) = lambda.A{i};
     end
     % Max A_invs and x_attractor    
-    [lambda.x_attractor, lambda.A_inv] = estimate_stable_mix_inv_lds( ...
-                                [x_obs x_dot_obs]', weights, options, lambda.x_attractor, A_inv_old);
+    [lambda.x_attractor, lambda.A] = estimate_stable_mix_lds( ...
+                                [x_obs x_dot_obs]', weights, options, lambda.x_attractor, A_old);
 
     for c=1:n_comp
         % Max regression error covariance cov_reg
-        model_error = (-lambda.A_inv{c}*x_dot_obs' ...
-                 + repmat(lambda.x_attractor, [1 size(x_obs,1)]) - x_obs');
+        model_error = (lambda.A{c}*(x_obs' ...
+            - repmat(lambda.x_attractor, [1 size(x_obs,1)])) - x_dot_obs');
         cov_reg = 1/sum(weights(c,:))* ...
                         (repmat(weights(c,:), size(model_error,1), 1) ... 
                             .* model_error*model_error');

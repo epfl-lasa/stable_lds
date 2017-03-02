@@ -1,4 +1,4 @@
-function [c,ceq,dc,dceq]=stable_mix_inv_lds_constraint(p,d,n_comp,options)
+function [c,ceq,dc,dceq]=stable_mix_constraint(p,d,n_comp,options)
 % Negative definite constraint for the system matrix
 c = [];
 dc = [];

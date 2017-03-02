@@ -1,4 +1,4 @@
-function [ lambda ] = init_kmeans_mix_lds(data, n_comp, options)
+function [ lambda ] = init_kmeans_mix_inv_lds(data, n_comp, options)
 %INIT_KMEANS_MIX_LDS Initializes the model with kmeans and solves the
 %resulting clusters with estimate_stable_mix_inv_lds. 
 
@@ -20,7 +20,7 @@ for c=1:n_comp
     weights(c,:) = (idx == c)';
 end
 
-[lambda.x_attractor, lambda.A] = estimate_stable_mix_lds( ...
+[lambda.x_attractor, lambda.A_inv] = estimate_stable_mix_inv_lds( ...
                                  [x_obs x_dot_obs]', weights, options);
 
 for c=1:n_comp
@@ -28,8 +28,8 @@ for c=1:n_comp
     x_dot_obs_c = x_dot_obs(idx == c,:);
 
     % Estimate noise from prediction error covariance
-    model_error = (lambda.A{c}*(x_obs_c' ...
-      - repmat(lambda.x_attractor, [1 size(x_obs_c,1)])) - x_dot_obs_c');
+    model_error = (-lambda.A_inv{c}*x_dot_obs_c' ...
+      + repmat(lambda.x_attractor, [1 size(x_obs_c,1)]) - x_obs_c');
     lambda.cov_reg{c} = ...
         crop_min_eig(1/size(x_obs_c,2)*(model_error*model_error'), ...
                                                         options.min_eig_reg);

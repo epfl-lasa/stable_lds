@@ -110,7 +110,7 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
             A_inv_0(:,:,i)= -eye(d);
         end
     end
-    p0 = fold_mix_lds(A_inv_0,x_star_0);
+    p0 = fold_mix_inv_lds(A_inv_0,x_star_0);
     
     data_inv = zeros(size(data));
     data_inv(1:d,:) = data(d+1:end,:);
@@ -119,11 +119,11 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
     gradobj = 'on';
     
     if strcmp(options.criterion, 'logdet')
-        objective_handle = @(p)weighted_logdet_mix(p, d, n_comp, ...
+        objective_handle = @(p)weighted_logdet_mix_inv_lds(p, d, n_comp, ...
                                                           data_inv, weights);
         gradobj = 'off';
     else
-        objective_handle = @(p)weighted_mse_mix(p, d, n_comp, ...
+        objective_handle = @(p)weighted_mse_mix_inv_lds(p, d, n_comp, ...
                                                           data_inv, weights);
     end
     
@@ -140,7 +140,7 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
         p_opt = fmincon(objective_handle, p0, [], [], [], [], [], [], ...
                                               constraints_handle, opt_options);
     else % fminsdp
-        constraints_handle = @(p)stable_mix_inv_lds_constraint(p, d, ...
+        constraints_handle = @(p)stable_mix_constraint(p, d, ...
                                                               n_comp, options);
         tmp = eye(d);
         s_c = numel(tmp(tril(true(d)))); % size of the constraints
@@ -159,7 +159,7 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
                                               constraints_handle, opt_options);
     end
 	% Reshape A and b
-    [A_inv_neg,x_attractor] = unfold_mix_lds(p_opt,d,n_comp);
+    [A_inv_neg,x_attractor] = unfold_mix_inv_lds(p_opt,d,n_comp);
     for i = 1:n_comp
         A_inv_out{i} = -A_inv_neg(:,:,i);
     end

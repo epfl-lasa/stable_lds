@@ -151,7 +151,7 @@ if strcmp(options.solver, 'fmincon') || strcmp(options.solver, 'fminsdp')
 else
     %% YALMIP solvers
     if ~isfield(options, 'eps_constraints')
-        options.eps_pos_def = 1e-3;
+        options.c_reg = 1e-3;
     end
     if ~isfield(options, 'warning')
         options.warning = 0;
@@ -172,7 +172,7 @@ else
     % Constraints
     C=[error == (A*data(1:d,:) + repmat(b,1,size(data,2)))-data(d+1:2*d,:)];
     % Lyapunov LMI setting P=I -> Pos def (nonsymmetric) matrix
-    C = C + [A'+A <= -options.eps_pos_def*eye(d,d)] ;
+    C = C + [A'+A <= options.c_reg*eye(d,d)] ;
 
     % Do not estimate the bias, set it to the one specified a priori
     if isfield(options, 'attractor')

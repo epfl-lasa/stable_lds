@@ -1,4 +1,4 @@
-function [cost] = weighted_logdet_mix(p, d, n_comp, data, weights)
+function [cost] = weighted_logdet_mix_inv_lds(p, d, n_comp, data, weights)
 % This function computes the weighted logdet covariance of a mixture of linear 
 % systems. 
 % It returns the value and the derivatives w.r.t. the bias and the

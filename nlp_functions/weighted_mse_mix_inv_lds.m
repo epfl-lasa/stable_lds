@@ -1,4 +1,4 @@
-function [cost, dcost_dp] = weighted_mse_mix(p, d, n_comp, data, weights)
+function [cost, dcost_dp] = weighted_mse_mix_inv_lds(p, d, n_comp, data, weights)
 % This function computes the weighted mean squared error of a linear system. 
 % It returns the value and the derivatives w.r.t. the bias and the
 % linear term
