@@ -10,7 +10,7 @@ dcost_dx_star = zeros(d,1);
 dcost_dA = zeros(d,d,n_comp);
 
 for i = 1:n_comp
-    sum_w_i = sum(weights(i,:))/10000;
+    sum_w_i = sum(weights(i,:));
     pi_max_i = sum(weights(i,:))/sum(sum(weights));
     error(:,:,i) = A(:,:,i)*(data(1:d,:) ...
                                 - repmat(x_star,1,size(data,2)))-data(d+1:2*d,:); 
