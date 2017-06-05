@@ -5,7 +5,8 @@ function comparison_seds_letters(condition, do_plot)
 run ../setup_stable_lds;
 
 % For Mosek solver (use sedumi if you don't have a license)
-% addpath('/Users/joseramonmedina/Dropbox/work/3rdParty/mosek/8/toolbox/r2014a')
+addpath('/home/medina/Dropbox/work/3rdParty/mosek/8/toolbox/r2014a')
+javaaddpath('/home/medina/Dropbox/work/3rdParty/mosek//8/tools/platform/{MYPLATFORM}/bin/mosekmatlab.jar')
 
 max_c = 25; % Maximum number of components to evaluate 1:max_c
 
@@ -60,7 +61,7 @@ options_seds.objective = seds_objective;    % 'likelihood': use likelihood as cr
 %% Optimization options SIEDS
 clear options_sieds;
 options_sieds.n_iter = 5;        % Max number of EM iterations
-options_sieds.solver = 'sedumi';              % Solver 
+options_sieds.solver = 'mosek';              % Solver 
 options_sieds.criterion = 'mse';              % Solver
 options_sieds.c_reg = 1e-6;                  % Pos def eps margin
 options_sieds.c_reg_inv = 5e-1;                  % Pos def eps margin
@@ -72,12 +73,12 @@ end
 
 %% Optimization options pseudo SEDS
 clear options_p_sieds;
-options_p_sieds.n_iter = 10;        % Max number of EM iterations
-options_p_sieds.solver = 'sedumi';              % Solver 
+options_p_sieds.n_iter = 5;        % Max number of EM iterations
+options_p_sieds.solver = 'mosek';              % Solver 
 options_p_sieds.criterion = 'mse';              % Solver
 options_p_sieds.c_reg = -1e-5;                  % Pos def eps margin
 options_p_sieds.verbose = 0;                    % Verbose (0-5)
-options_p_sieds.warning = true;                % Display warning information
+options_p_sieds.warning = 0;                % Display warning information
 options_p_sieds.min_eig_loc = 1e-5;
 options_p_sieds.max_iter = 100;
 
