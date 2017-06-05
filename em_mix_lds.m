@@ -1,4 +1,4 @@
-function [lambda]=em_mix_lds(data, n_comp, varargin)
+function [lambda,lik_out]=em_mix_lds(data, n_comp, varargin)
 % EM_MIX_LDS fits a Gaussian mixture of stable linear 
 % dynamical systems to data with the EM algorithm.
 %   USAGE:
@@ -112,5 +112,5 @@ for it = 1:options.n_iter
     end
     lambda.pi = sum(weights,2)/sum(sum(weights));
 end
-loglik
+lik_out = loglik(it);
 end
