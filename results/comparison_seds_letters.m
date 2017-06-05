@@ -1,6 +1,4 @@
 function comparison_seds_letters(condition, do_plot)
-% NOTE: To run this comparison, clone the seds repository first in the
-% source directory of this repo. https://bitbucket.org/khansari/seds
 
 run ../setup_stable_lds;
 
@@ -60,7 +58,7 @@ options_seds.objective = seds_objective;    % 'likelihood': use likelihood as cr
 
 %% Optimization options SIEDS
 clear options_sieds;
-options_sieds.n_iter = 5;        % Max number of EM iterations
+options_sieds.n_iter = 10;        % Max number of EM iterations
 options_sieds.solver = 'mosek';              % Solver 
 options_sieds.criterion = 'mse';              % Solver
 options_sieds.c_reg = 1e-6;                  % Pos def eps margin
@@ -73,7 +71,7 @@ end
 
 %% Optimization options pseudo SEDS
 clear options_p_sieds;
-options_p_sieds.n_iter = 5;        % Max number of EM iterations
+options_p_sieds.n_iter = 10;        % Max number of EM iterations
 options_p_sieds.solver = 'mosek';              % Solver 
 options_p_sieds.criterion = 'mse';              % Solver
 options_p_sieds.c_reg = -1e-5;                  % Pos def eps margin
@@ -88,7 +86,6 @@ mse_seds_attractor = zeros(max_c,1);
 mse_sieds_attractor = zeros(max_c,1);
 likelihood_seds = zeros(max_c,1);
 likelihood_sieds = zeros(max_c,1);
-likelihood_sieds_attractor = zeros(max_c,1);
 dir_error_seds = zeros(max_c,1);
 dir_error_sieds = zeros(max_c,1);
 training_time_seds = zeros(max_c,1);
@@ -183,7 +180,6 @@ for c = 1:max_c
 
         if ~attractor_fixed
             mse_sieds_attractor(c) = mse_sieds_attractor(c) + sqrt(sum(lambda.x_attractor.^2));
-            likelihood_sieds_attractor(c) = likelihood_sieds_attractor(c) + cost;
         end
     end
     
@@ -197,16 +193,16 @@ for c = 1:max_c
     if ~attractor_fixed
         mse_seds_attractor(c) = mse_seds_attractor(c) / length(files);
         mse_sieds_attractor(c) = mse_sieds_attractor(c) / length(files);
-        likelihood_sieds_attractor(c) = likelihood_sieds_attractor(c) / length(files);
     end
 end
 if ~attractor_fixed
     save(filename, 'mse_seds', 'mse_sieds', 'mse_seds_attractor', ...
         'mse_sieds_attractor','dir_error_seds', 'dir_error_sieds', ...
-        'training_time_seds', 'training_time_sieds', ...
-        'options_seds', 'options_sieds', 'options_p_sieds');
+        'likelihood_seds', 'likelihood_sieds', 'training_time_seds', ...
+        'training_time_sieds', 'options_seds', 'options_sieds', 'options_p_sieds');
 else
     save(filename, 'mse_seds', 'mse_sieds', 'dir_error_seds', ...
-        'dir_error_sieds', 'training_time_seds', 'training_time_sieds', ...
+        'dir_error_sieds', 'likelihood_seds', 'likelihood_sieds', ...
+        'training_time_seds', 'training_time_sieds', ...
         'options_seds', 'options_sieds', 'options_p_sieds');
 end

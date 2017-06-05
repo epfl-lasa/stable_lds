@@ -6,9 +6,9 @@ color_seds_free = [0.4940    0.1840    0.5560];
 color_sieds_fixed = [0.8500    0.3250    0.0980];
 color_sieds_free = [0.6350    0.0780    0.1840];
 
-figure('units','normalized','position',[0.1 0.1 0.7 0.27]);
+figure('units','normalized','position',[0.1 0.1 0.85 0.27]);
 load('comparison_seds_sieds/results_fixed_attractor')
-subplot(1,3,1);
+subplot(1,4,1);
 a = plot(mse_seds, '-*','MarkerSize', 4, 'Color', color_seds_fixed);
 hold on;
 b = plot(mse_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_fixed);
@@ -25,7 +25,7 @@ legend([a b c d], 'aaaaaaaaaaaaaaaaaaaa','b','c','d')
 
 
 load('comparison_seds_sieds/results_fixed_attractor')
-subplot(1,3,2);
+subplot(1,4,2);
 plot(training_time_seds, '-*','MarkerSize', 4, 'Color', color_seds_fixed);
 hold on;
 plot(training_time_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_fixed);
@@ -39,9 +39,24 @@ ylabel('time')
 axis([1 25 0 inf]);
 grid on;
 
+load('comparison_seds_sieds/results_fixed_attractor')
+subplot(1,4,3);
+plot(dir_error_seds, '-*','MarkerSize', 4, 'Color', color_seds_fixed);
+hold on;
+plot(dir_error_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_fixed);
 
 load('comparison_seds_sieds/results_free_attractor')
-subplot(1,3,3);
+plot(dir_error_seds, '-*','MarkerSize', 4, 'Color', color_seds_free);
+hold on;
+plot(dir_error_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_free);
+xlabel('ncomp')
+ylabel('direrror')
+axis([1 25 0 inf]);
+grid on;
+
+
+load('comparison_seds_sieds/results_free_attractor')
+subplot(1,4,4);
 plot(mse_seds_attractor, '-*','MarkerSize', 4, 'Color', color_seds_free);
 hold on;
 plot(mse_sieds_attractor, '-*','MarkerSize', 4, 'Color', color_sieds_free);
