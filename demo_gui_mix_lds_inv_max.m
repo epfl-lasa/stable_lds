@@ -11,7 +11,7 @@ setup_stable_lds;
 %% Params
 % Model options
 n_comp = 7;
-em_iterations = 1;
+em_iterations = 0;
 
 % Optimization options
 clear options;
@@ -19,12 +19,12 @@ options.n_iter = em_iterations;        % Max number of EM iterations
 options.solver = 'sedumi';              % Solver (If you don't have mosek 
                                        % use 'sedumi', it's free)
 options.criterion = 'mse';              % Solver
-options.c_reg = 1e-5;                  % Pos def eps margin
+options.c_reg = 1e-4;                  % Pos def eps margin
 options.c_reg_inv = 5e-1;                  % Pos def eps margin
 options.verbose = 1;                    % Verbose (0-5)
 options.warning = true;                % Display warning information
 options.max_iter = 30;
-options.min_eig_loc = 1e-20;
+options.min_eig_loc = 1e-0;
 limits = [0 100 0 100];
 lambda = [];
 p_handle = [];
@@ -83,6 +83,7 @@ function ret = start_demonstration()
     set(gcf,'WindowButtonUpFcn',@stop_demonstration);
     set(gcf,'WindowButtonMotionFcn',@record_current_point);
     ret = 1;
+    tic;
 end
 
 function ret = stop_demonstration(~,~)

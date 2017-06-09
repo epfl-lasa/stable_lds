@@ -58,10 +58,10 @@ options_seds.objective = seds_objective;    % 'likelihood': use likelihood as cr
 
 %% Optimization options SIEDS
 clear options_sieds;
-options_sieds.n_iter = 10;        % Max number of EM iterations
-options_sieds.solver = 'mosek';              % Solver 
+options_sieds.n_iter = 5;        % Max number of EM iterations
+options_sieds.solver = 'sedumi';              % Solver 
 options_sieds.criterion = 'mse';              % Solver
-options_sieds.c_reg = 1e-6;                  % Pos def eps margin
+options_sieds.c_reg = 1e-3;                  % Pos def eps margin
 options_sieds.c_reg_inv = 5e-1;                  % Pos def eps margin
 options_sieds.verbose = 1;                    % Verbose (0-5)
 
@@ -71,8 +71,8 @@ end
 
 %% Optimization options pseudo SEDS
 clear options_p_sieds;
-options_p_sieds.n_iter = 10;        % Max number of EM iterations
-options_p_sieds.solver = 'mosek';              % Solver 
+options_p_sieds.n_iter = 5;        % Max number of EM iterations
+options_p_sieds.solver = 'sedumi';              % Solver 
 options_p_sieds.criterion = 'mse';              % Solver
 options_p_sieds.c_reg = -1e-5;                  % Pos def eps margin
 options_p_sieds.verbose = 0;                    % Verbose (0-5)
@@ -91,7 +91,7 @@ dir_error_sieds = zeros(max_c,1);
 training_time_seds = zeros(max_c,1);
 training_time_sieds = zeros(max_c,1);
 
-for c = 1:max_c
+for c = 6:max_c
      disp(['Evaluation with ' num2str(c) ' components ...'])
     for i=1:length(files)
         i

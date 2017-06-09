@@ -6,9 +6,9 @@ color_seds_free = [0.4940    0.1840    0.5560];
 color_sieds_fixed = [0.8500    0.3250    0.0980];
 color_sieds_free = [0.6350    0.0780    0.1840];
 
-figure('units','normalized','position',[0.1 0.1 0.85 0.27]);
+figure('units','normalized','position',[0.1 0.1 0.75 0.27]);
 load('comparison_seds_sieds/results_fixed_attractor')
-subplot(1,4,1);
+ax = subplot(1,3,1);
 a = plot(mse_seds, '-*','MarkerSize', 4, 'Color', color_seds_fixed);
 hold on;
 b = plot(mse_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_fixed);
@@ -22,10 +22,11 @@ ylabel('rmsep')
 grid on;
 axis([1 25 0 inf]);
 legend([a b c d], 'aaaaaaaaaaaaaaaaaaaa','b','c','d')
+ax.FontSize = 14;
 
 
 load('comparison_seds_sieds/results_fixed_attractor')
-subplot(1,4,2);
+ax = subplot(1,3,2);
 plot(training_time_seds, '-*','MarkerSize', 4, 'Color', color_seds_fixed);
 hold on;
 plot(training_time_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_fixed);
@@ -38,25 +39,26 @@ xlabel('ncomp')
 ylabel('time')
 axis([1 25 0 inf]);
 grid on;
+ax.FontSize = 14;
 
-load('comparison_seds_sieds/results_fixed_attractor')
-subplot(1,4,3);
-plot(dir_error_seds, '-*','MarkerSize', 4, 'Color', color_seds_fixed);
-hold on;
-plot(dir_error_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_fixed);
+% load('comparison_seds_sieds/results_fixed_attractor')
+% subplot(1,4,3);
+% plot(dir_error_seds, '-*','MarkerSize', 4, 'Color', color_seds_fixed);
+% hold on;
+% plot(dir_error_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_fixed);
+% 
+% load('comparison_seds_sieds/results_free_attractor')
+% plot(dir_error_seds, '-*','MarkerSize', 4, 'Color', color_seds_free);
+% hold on;
+% plot(dir_error_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_free);
+% xlabel('ncomp')
+% ylabel('direrror')
+% axis([1 25 0 inf]);
+% grid on;
+
 
 load('comparison_seds_sieds/results_free_attractor')
-plot(dir_error_seds, '-*','MarkerSize', 4, 'Color', color_seds_free);
-hold on;
-plot(dir_error_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_free);
-xlabel('ncomp')
-ylabel('direrror')
-axis([1 25 0 inf]);
-grid on;
-
-
-load('comparison_seds_sieds/results_free_attractor')
-subplot(1,4,4);
+ax = subplot(1,3,3);
 plot(mse_seds_attractor, '-*','MarkerSize', 4, 'Color', color_seds_free);
 hold on;
 plot(mse_sieds_attractor, '-*','MarkerSize', 4, 'Color', color_sieds_free);
@@ -65,6 +67,24 @@ ylabel('msea')
 
 axis([1 25 0 inf]);
 grid on;
+ax.FontSize = 14;
+
+% 
+% load('comparison_seds_sieds/results_fixed_attractor')
+% subplot(1,5,5);
+% %plot(likelihood_seds, '-*','MarkerSize', 4, 'Color', color_seds_fixed);
+% hold on;
+% plot(likelihood_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_fixed);
+% 
+% load('comparison_seds_sieds/results_free_attractor')
+% plot(likelihood_seds, '-*','MarkerSize', 4, 'Color', color_seds_free);
+% hold on;
+% plot(likelihood_sieds, '-*','MarkerSize', 4, 'Color', color_sieds_free);
+% xlabel('ncomp')
+% ylabel('lik')
+% axis([1 25 -inf inf]);
+% grid on;
+
 
 file = 'seds_comparison.eps';
 set(gcf,'PaperPositionMode','auto');
@@ -77,14 +97,14 @@ print(gcf, '-depsc','-painters', file);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % For figure 1
-%files = {'KShape', 'Khamesh'}; 
+%files = {'PShape', 'Khamesh'}; 
 % For figure 2
-files = {'JShape', 'Zshape'}; 
+files = {'JShape', 'Spoon'}; 
 
 %% Optimization options SEDS
 clear options;
 dt = 0.1;
-tol_cutting = 1;
+tol_cutting = 5;
 % A set of options that will be passed to the solver. Please type 
 % 'doc preprocess_demos' in the MATLAB command window to get detailed
 % information about other possible options.
@@ -110,29 +130,30 @@ options_seds.objective = 'mse';    % 'likelihood': use likelihood as criterion t
 
 %% Optimization options SIEDS
 clear options_sieds;
-options_sieds.n_iter = 10;        % Max number of EM iterations
-options_sieds.solver = 'mosek';              % Solver 
+options_sieds.n_iter = 5;        % Max number of EM iterations
+options_sieds.solver = 'sedumi';              % Solver 
 options_sieds.criterion = 'mse';              % Solver
-options_sieds.c_reg = 1e0;                  % Pos def eps margin
+options_sieds.c_reg = 1e-6;                  % Pos def eps margin
+options_sieds.c_reg_inv = 1e-0;                  % Pos def eps margin
 options_sieds.verbose = 0;                    % Verbose (0-5)
 options_sieds.warning = true;                % Display warning information
-options_sieds.min_eig_loc = 1e-5;
+options_sieds.min_eig_loc = 1e-1;
 options_sieds_fixed = options_sieds;
 options_sieds_fixed.attractor = [0;0];
 
 %% Optimization options pseudo SEDS
 clear options_p_sieds;
-options_p_sieds.n_iter = 10;        % Max number of EM iterations
-options_p_sieds.solver = 'mosek';              % Solver 
+options_p_sieds.n_iter = 5;        % Max number of EM iterations
+options_p_sieds.solver = 'sedumi';              % Solver 
 options_p_sieds.criterion = 'mse';              % Solver
 options_p_sieds.c_reg = -1e-5;                  % Pos def eps margin
 options_p_sieds.verbose = 0;                    % Verbose (0-5)
 options_p_sieds.warning = true;                % Display warning information
-options_p_sieds.min_eig_loc = 1e-5;
+options_p_sieds.min_eig_loc = 1e-1;
 options_p_sieds.max_iter = 100;
 
 figure('units','normalized','position',[0.1 0.1 0.27 0.7]);
-c = 7;
+c = 9;
 
 for i=1:length(files)
     load(['models/recorded_motions/' files{i}],'demos');
@@ -162,7 +183,7 @@ for i=1:length(files)
     plot(0,0,'bo', 'LineWidth', 6,'MarkerSize', 6);
 
     %% SIEDS learning (known attractor)
-    lambda = em_mix_inv_lds(Data, c, options_sieds_fixed);
+    lambda = em_mix_lds_inv_max(Data, c, options_sieds_fixed);
 
     subplot(4,2,(i-1)+3);
     % Plot result
@@ -170,7 +191,7 @@ for i=1:length(files)
     hold on;
     ax = gca;
     %limits = [ax.XLim ax.YLim];
-    [p,h] = plot_streamlines_mix_inv_lds(lambda,limits);
+    [p,h] = plot_streamlines_mix_lds(lambda,limits);
     delete(h);
     delete(p(end-c+1:end));
 
@@ -188,7 +209,7 @@ for i=1:length(files)
     delete(p(end-c+1:end));
 
     %% SIEDS learning (known attractor)
-    lambda = em_mix_inv_lds(Data, c, options_sieds);
+    lambda = em_mix_lds_inv_max(Data, c, options_sieds);
 
     subplot(4,2,(i-1)+7);
     % Plot result
@@ -196,7 +217,7 @@ for i=1:length(files)
     hold on;
     ax = gca;
     %limits = [ax.XLim ax.YLim];
-    [p,h] = plot_streamlines_mix_inv_lds(lambda,limits);        
+    [p,h] = plot_streamlines_mix_lds(lambda,limits);        
     delete(h);
     delete(p(end-c+1:end));
 end
